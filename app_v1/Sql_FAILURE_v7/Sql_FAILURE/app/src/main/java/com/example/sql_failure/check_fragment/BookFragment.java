@@ -47,8 +47,7 @@ public class BookFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-//1235456
-//7654321
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
