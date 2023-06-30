@@ -47,6 +47,7 @@ public class BookFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+//test
 //pp
     @Override
     public void onCreate(Bundle savedInstanceState) {
