@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">Sql_FAILURE</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="drawer_open">Drawer opened</string>
+    <string name="drawer_close">Drawer closed</string>
+    <string name="title_activity_post">PostActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="main_function">常用功能</string>
+    <string name="main_all">全部</string>
+    <string name="main_sss">SSS</string>
+    <string name="main_way">WAY</string>
+    <string name="main_scada">SCADA</string>
+    <string name="main_moreInfo">查看更多工作說明書檢查表</string>
+    <string name="main_login">登入</string>
+    <string name="main_logout">登出</string>
+    <string name="post_select">請選擇登載類型</string>
+    <string name="post_new">創建全新的工作說明書檢查</string>
+    <string name="post_edit">多天作業或再次編輯檢查表</string>
+    <string name="post_next">下一步</string>
+    <string name="new_select">請選擇新增類型</string>
+    <string name="new_select_edit">請選擇編輯類型</string>
+    <string name="edit_select">請選擇編輯檢查表</string>
+    <string name="taskcard_select">請選擇工作說明書</string>
+    <string name="taskcard_date">*檢查日期:</string>
+    <string name="taskcard_taskcard">*工作說明書:</string>
+    <string name="taskcard_attach">*附件:</string>
+    <string name="taskcard_location">*地點:</string>
+    <string name="taskcard_selectday">選擇日期</string>
+    <string name="taskcard_date_first">請先選擇日期</string>
+    <string name="taskcard_taskcard_first">請先選擇工作說明書</string>
+    <string name="taskcard_location_first">請先選擇地點</string>
+    <string name="status_days">執行天數:</string>
+    <string name="status_date">檢查日期:</string>
+    <string name="status_weather">天氣:</string>
+    <string name="status_temperature">溫度:</string>
+    <string name="status_humidity">濕度:</string>
+    <string name="status_wo">*WO:</string>
+    <string name="status_worker">工作人員:</string>
+    <string name="status_company">承包商:</string>
+    <string name="status_responsible">*工作負責人:</string>
+    <string name="status_weather_hint">ex:晴</string>
+    <string name="status_humidity_hint">ex:85</string>
+    <string name="status_wo_hint">ex:22070131</string>
+    <string name="status_responsible_hint">ex:吳oo</string>
+    <string name="status_worker_hint">ex:黃oo、陳oo、林oo</string>
+    <string name="status_temperature_hint">ex:31</string>
+    <string name="status_days_hint">ex:第一天</string>
+    <string name="status_company_hint">ex:ooo</string>
+    <string name="post_backhome">回首頁</string>
+</resources>

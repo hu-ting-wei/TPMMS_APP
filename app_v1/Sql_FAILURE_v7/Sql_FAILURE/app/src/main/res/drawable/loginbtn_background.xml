@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:shape="rectangle">
+            <!--設定形狀的顏色-->
+            <solid
+                android:color="@color/more_info"/>
+            <!--設定圓角的尺寸-->
+            <corners
+                android:radius="10dp"/>
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bnavHome"
+        android:icon="@drawable/homebtn_background"
+        android:title="回首頁" />
+    <item
+        android:id="@+id/bnavBook"
+        android:icon="@drawable/bookbtn_background"
+        android:title="說明書" />
+    <item
+        android:id="@+id/bnavMME"
+        android:icon="@drawable/mmebtn_background"
+        android:title="MME" />
+    <item
+        android:id="@+id/bnavStatus"
+        android:icon="@drawable/statusbtn_background"
+        android:title="作業狀態" />
+</menu>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vlIdParent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/vlTitileContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/teal_700"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvIdTaskcardType"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/edit_item_type_background"
+            android:gravity="center"
+            android:text="SSS"
+            android:textColor="@color/text_color"
+            android:textSize="22sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvIdParentDate"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:text="2021/11/19"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvIdParentLocation"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:text="台北車站"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvIdParentTaskcard"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="7"
+                android:gravity="center"
+                android:text="車站基地及正線機房道旁機電設備年度一般檢查"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/ivIdParentIcon"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="20dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_arrow_right" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/vIdParentDivider"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@color/white" />
+</LinearLayout>

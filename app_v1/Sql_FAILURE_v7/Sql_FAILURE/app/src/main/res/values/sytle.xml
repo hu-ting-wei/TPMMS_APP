@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="bottom_nav_title_active">
+        <item name="android:textSize">22sp</item>
+    </style>
+    <style name="bottom_nav_title_inactive">
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">40sp</item>
+    </style>
+    <style name="text_big">
+        <item name="android:textSize">55sp</item>
+        <item name="android:textColor">@color/text_color</item>
+    </style>
+    <style name="text_small">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@color/text_color</item>
+    </style>
+    <style name="tabTextAppearance">
+        <item name="android:textSize">40sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+</resources>
