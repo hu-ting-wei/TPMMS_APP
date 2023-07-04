@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,6 +15,8 @@ import com.example.sql_failure.check_fragment.HomeFragment;
 import com.example.sql_failure.check_fragment.MMEFragment;
 import com.example.sql_failure.check_fragment.StatusFragment;
 import com.example.sql_failure.databinding.ActivityCheckBinding;
+import com.example.sql_failure.post_activities.MainActivity;
+import com.example.sql_failure.post_activities.TaskcardStatusActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -42,10 +45,11 @@ public class CheckActivity extends AppCompatActivity {
 
             switch (item.getItemId()){
                 case R.id.bnavHome:
-                    replaceFragment(new HomeFragment());
+                    Intent intent=new Intent(CheckActivity.this, MainActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.bnavBook:
-                    replaceFragment(new BookFragment());
+                    replaceFragment(new HomeFragment());
                     break;
                 case R.id.bnavMME:
                     replaceFragment(new MMEFragment());
