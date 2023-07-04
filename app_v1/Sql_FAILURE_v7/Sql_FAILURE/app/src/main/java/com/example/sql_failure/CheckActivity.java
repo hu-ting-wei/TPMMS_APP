@@ -59,6 +59,9 @@ public class CheckActivity extends AppCompatActivity {
                 case R.id.bnavStatus:
                     replaceFragment(new StatusFragment());
                     break;
+                case R.id.bnavSave:
+                    HomeFragment.save();
+                    break;
             }
             return true;
         });
@@ -103,7 +106,6 @@ public class CheckActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int i) {
                         // TODO Auto-generated method stub
                         HomeFragment.save();
-
                         Intent intent=new Intent(CheckActivity.this, MainActivity.class);
                         startActivity(intent);
 

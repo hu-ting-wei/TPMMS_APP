@@ -19,4 +19,8 @@
         android:id="@+id/bnavStatus"
         android:icon="@drawable/statusbtn_background"
         android:title="作業狀態" />
+    <item
+        android:id="@+id/bnavSave"
+        android:icon="@drawable/savebtn_background"
+        android:title="儲存資料" />
 </menu>

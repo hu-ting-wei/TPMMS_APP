@@ -51,7 +51,7 @@ public class HomeFragment extends Fragment {
     private String postMod;
 
     private LinearLayout vlFather;
-    private FloatingActionButton fabSave;
+
     private RadioGroup content_rg[][];
     private EditText content_et[][];
     /**SQL**/
@@ -150,8 +150,7 @@ public class HomeFragment extends Fragment {
         }
         // Inflate the layout for this fragment
         myView=inflater.inflate(R.layout.fragment_home, container, false);
-        fabSave=((FloatingActionButton) myView.findViewById(R.id.fabIdSave));
-        fabSave.setOnClickListener(saveListener);
+
 
         try {
             compDBHper.createDatabase();
@@ -203,7 +202,7 @@ public class HomeFragment extends Fragment {
         //以上初始完成
         //初始完成時就先寫入db，以防第一次登載時沒儲存就離開(導致checked_result中無資料提供編輯時查找)
         if (postMod.equals("new")){
-            saveListener.onClick(null);
+            save();
         }
         //如果是編輯模式 需要將歷史紀錄填回表格
 
@@ -842,12 +841,7 @@ public class HomeFragment extends Fragment {
                 break;
         }
     }
-    private View.OnClickListener saveListener=new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            save();
-        }
-    };
+
     public static void save(){
         Log.d("ids", String.valueOf(element_IDs));
         Log.d("db_result", String.valueOf(db_result));
