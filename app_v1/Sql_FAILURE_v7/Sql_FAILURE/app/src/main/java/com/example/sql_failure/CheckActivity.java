@@ -1,14 +1,17 @@
 package com.example.sql_failure;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import com.example.sql_failure.check_fragment.BookFragment;
 import com.example.sql_failure.check_fragment.HomeFragment;
@@ -45,8 +48,7 @@ public class CheckActivity extends AppCompatActivity {
 
             switch (item.getItemId()){
                 case R.id.bnavHome:
-                    Intent intent=new Intent(CheckActivity.this, MainActivity.class);
-                    startActivity(intent);
+                    ConfirmExit();
                     break;
                 case R.id.bnavBook:
                     replaceFragment(new HomeFragment());
@@ -78,5 +80,50 @@ public class CheckActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout2,fragment);
         fragmentTransaction.commit();
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {//捕捉返回鍵
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            ConfirmExit();//按返回鍵，則執行退出確認
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    public void ConfirmExit(){//退出確認
+        AlertDialog.Builder ad_leave=new AlertDialog.Builder(CheckActivity.this);
+        ad_leave.setTitle("離開");
+        ad_leave.setMessage("是否要離開?");
+        ad_leave.setPositiveButton("是", new DialogInterface.OnClickListener() {//退出按鈕
+            public void onClick(DialogInterface dialog, int i) {
+                // TODO Auto-generated method stub
+                AlertDialog.Builder ad_save=new AlertDialog.Builder(CheckActivity.this);
+                ad_save.setTitle("存檔");
+                ad_save.setMessage("是否要儲存尚未存檔之更動?");
+                ad_save.setPositiveButton("是", new DialogInterface.OnClickListener() {//退出按鈕
+                    public void onClick(DialogInterface dialog, int i) {
+                        // TODO Auto-generated method stub
+                        HomeFragment.save();
+
+                        Intent intent=new Intent(CheckActivity.this, MainActivity.class);
+                        startActivity(intent);
+
+                    }
+                });
+                ad_save.setNegativeButton("否",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+
+                        Intent intent=new Intent(CheckActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    }
+                });
+                ad_save.show();//顯示對話框
+            }
+        });
+        ad_leave.setNegativeButton("否",new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int i) {
+
+            }
+        });
+        ad_leave.show();//顯示對話框
     }
 }

@@ -46,7 +46,9 @@ import java.util.ArrayList;
  */
 public class HomeFragment extends Fragment {
     private TextView tvFragCheck;
-    private String taskcard_name,PMID,postMod;
+    private String taskcard_name;
+    private static String PMID;
+    private String postMod;
 
     private LinearLayout vlFather;
     private FloatingActionButton fabSave;
@@ -58,11 +60,11 @@ public class HomeFragment extends Fragment {
     private static final String TBname="check_item";
     private static final int itemID=52;
     //CompDBHper compDBHper=new CompDBHper(getActivity(),DBname,null,DBversion);
-    CompDBHper compDBHper;
+    static CompDBHper compDBHper;
     private String SQL_command;
     private ArrayList<String> recSet;//包含#的內容
     private ArrayList<String> item_ID_set;//itemID及其標題，顯示於textview上
-    private ArrayList<String> taskcard_attach_item_pkey;//各項目代碼(去除#的內容)
+    private static ArrayList<String> taskcard_attach_item_pkey;//各項目代碼(去除#的內容)
     private ArrayList<String> item_description_set;//去除#的內容(標頭)
     private int ALL_item_description_count;
     /*****/
@@ -73,8 +75,8 @@ public class HomeFragment extends Fragment {
     private int editText_id;//紀錄editText的id，當editText內容改變時無法像radioGroup一樣取得當前物件並取得id，所以只能靠onTouch來取得id。
                                 //但編輯模式會直接改變editText的值，因此無法靠onTouch來取得id，就必須用此參數作為id紀錄
     /*****/
-    private ArrayList<ArrayList<Integer>> element_IDs=new ArrayList<>();//收藏所有id們，element_IDs[組別][小項目]
-    private ArrayList<ArrayList<String>> db_result=new ArrayList<>();//收藏使用者的輸入結果(即將寫入db)，db_result[組別][小項目]
+    private static ArrayList<ArrayList<Integer>> element_IDs=new ArrayList<>();//收藏所有id們，element_IDs[組別][小項目]
+    private static ArrayList<ArrayList<String>> db_result=new ArrayList<>();//收藏使用者的輸入結果(即將寫入db)，db_result[組別][小項目]
 
     private ArrayList<String> all_standard_type;//去除#的內容(計數在同一itemID下整個表格的item數量，作為二維陣列初始化值，以防不夠用)
     private ArrayList<String> type_record=new ArrayList<>();//標頭固定為radioGroup但standard_type不一定是0，所以另用一個array來記錄各項的type(在編輯模式中會需要知道type才能把紀錄塞回去)
@@ -180,6 +182,8 @@ public class HomeFragment extends Fragment {
         recSet=compDBHper.get(SQL_command);
         item_ID_set=pre_work();
         int item_ID_count=item_ID_set.size();
+        db_result=new ArrayList<>();
+        element_IDs=new ArrayList<>();
         //建置主要分成三層:最外層item_ID、中層base_creator檢查項目item_description、裏層content_creator檢查細項check_list(可能有可能沒有)
         for(int x=0;x<item_ID_count/2;x++){
             /**************************************************************************************************/
@@ -195,12 +199,14 @@ public class HomeFragment extends Fragment {
         SQL_command="SELECT taskcard_attach_item_pkey FROM " + TBname;
         recSet=compDBHper.get(SQL_command);
         taskcard_attach_item_pkey=pre_work();
+
         //以上初始完成
         //初始完成時就先寫入db，以防第一次登載時沒儲存就離開(導致checked_result中無資料提供編輯時查找)
         if (postMod.equals("new")){
             saveListener.onClick(null);
         }
         //如果是編輯模式 需要將歷史紀錄填回表格
+
         else if (postMod.equals("edit")){
             SQL_command="SELECT data FROM checked_result WHERE PMID='" + PMID + "'";
             recSet=compDBHper.get(SQL_command);
@@ -839,32 +845,35 @@ public class HomeFragment extends Fragment {
     private View.OnClickListener saveListener=new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Log.d("ids", String.valueOf(element_IDs));
-            Log.d("db_result", String.valueOf(db_result));
-            //二維結果轉一維結果
-            ArrayList<String> result_dim1=new ArrayList<>();
-            ArrayList<String> taskcard_attach_item_pkey_1=new ArrayList<>();
-            int count1=0;
-            for(int i=0;i<db_result.size();i++){
-                int count2=0;
-                for (int j=0;j<db_result.get(i).size();j++){
-                    result_dim1.add(db_result.get(i).get(j));
-                    if (j==db_result.get(i).size()-1){
-                        taskcard_attach_item_pkey_1.add(taskcard_attach_item_pkey.get(count1)+"_ex");
-                    }
-                    else{
-                        taskcard_attach_item_pkey_1.add(taskcard_attach_item_pkey.get(count1+count2));
-                        count2+=1;
-                    }
-                }
-                count1+=count2;
-            }
-            //儲存時將原有資料刪除，重寫入一次
-            String sql="DELETE FROM checked_result WHERE PMID='" + PMID + "'";
-            compDBHper.delete_update(sql);
-            compDBHper.set(TBname,PMID,result_dim1,taskcard_attach_item_pkey_1);
+            save();
         }
     };
+    public static void save(){
+        Log.d("ids", String.valueOf(element_IDs));
+        Log.d("db_result", String.valueOf(db_result));
+        //二維結果轉一維結果
+        ArrayList<String> result_dim1=new ArrayList<>();
+        ArrayList<String> taskcard_attach_item_pkey_1=new ArrayList<>();
+        int count1=0;
+        for(int i=0;i<db_result.size();i++){
+            int count2=0;
+            for (int j=0;j<db_result.get(i).size();j++){
+                result_dim1.add(db_result.get(i).get(j));
+                if (j==db_result.get(i).size()-1){
+                    taskcard_attach_item_pkey_1.add(taskcard_attach_item_pkey.get(count1)+"_ex");
+                }
+                else{
+                    taskcard_attach_item_pkey_1.add(taskcard_attach_item_pkey.get(count1+count2));
+                    count2+=1;
+                }
+            }
+            count1+=count2;
+        }
+        //儲存時將原有資料刪除，重寫入一次
+        String sql="DELETE FROM checked_result WHERE PMID='" + PMID + "'";
+        compDBHper.delete_update(sql);
+        compDBHper.set(TBname,PMID,result_dim1,taskcard_attach_item_pkey_1);
+    }
     /********工具*********/
     //資料庫資料處理
     private ArrayList<String> pre_work(){
