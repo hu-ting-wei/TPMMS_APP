@@ -120,10 +120,10 @@ public class CompDBHper extends SQLiteOpenHelper {
                 String tmp1="INSERT INTO checked_result VALUES ";
                 for(int i=0;i< result.size();i++){
                     if(i== result.size()-1){
-                        tmp1+="(" + PMID + "','" + null + ",'" + attachment.get(i) + "','" + null + "','" + result.get(i) + "')";
+                        tmp1+="(" + PMID + ",'" + null + ",'" + attachment.get(i) + "','" + null + "','" + result.get(i) + "')";
                         break;
                     }
-                    tmp1+="(" + PMID + "','" + null + ",'" + attachment.get(i) + "','" + null + "','" + result.get(i) + "'),";
+                    tmp1+="(" + PMID + ",'" + null + "','" + attachment.get(i) + "','" + null + "','" + result.get(i) + "'),";
                 }
                 sql_command=tmp1;
                 break;
