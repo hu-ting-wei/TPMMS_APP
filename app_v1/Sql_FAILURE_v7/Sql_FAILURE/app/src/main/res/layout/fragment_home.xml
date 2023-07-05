@@ -219,23 +219,6 @@
 
         </LinearLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabIdSave"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/theme_teal"
-            android:clickable="true"
-            android:contentDescription="save"
-            android:scaleType="center"
-            android:src="@drawable/ic_save"
-            app:fabCustomSize="96dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:maxImageSize="56dp"
-            app:layout_anchor="@id/ScrollView"
-            app:layout_anchorGravity="bottom|right"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </FrameLayout>
