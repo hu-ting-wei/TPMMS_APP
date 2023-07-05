@@ -121,14 +121,14 @@ public class CompDBHper extends SQLiteOpenHelper {
         SQLiteDatabase db=getWritableDatabase();
         String sql_command = "";
         switch (TBname){
-            case "check_item":
+            case "checked_result":
                 String tmp1="INSERT INTO checked_result VALUES ";
                 for(int i=0;i< result.size();i++){
                     if(i== result.size()-1){
-                        tmp1+="(" + PMID + ",'" + attachment.get(i) + "','" + null + "','" + result.get(i) + "')";
+                        tmp1+="(" + PMID + "','" + null + ",'" + attachment.get(i) + "','" + null + "','" + result.get(i) + "')";
                         break;
                     }
-                    tmp1+="(" + PMID + ",'" + attachment.get(i) + "','" + null + "','" + result.get(i) + "'),";
+                    tmp1+="(" + PMID + "','" + null + ",'" + attachment.get(i) + "','" + null + "','" + result.get(i) + "'),";
                 }
                 sql_command=tmp1;
                 break;
@@ -146,7 +146,7 @@ public class CompDBHper extends SQLiteOpenHelper {
                         "','" + result.get(9) +
                         "','" + result.get(10) +
                         "','" + result.get(11) +
-                        //"','" + result.get(12) +
+                        "','" + result.get(12) +
                         "')";
                 sql_command=tmp2;
                 break;
