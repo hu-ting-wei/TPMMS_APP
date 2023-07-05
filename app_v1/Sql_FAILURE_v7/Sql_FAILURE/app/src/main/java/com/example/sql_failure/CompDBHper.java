@@ -21,8 +21,7 @@ import java.util.ArrayList;
 public class CompDBHper extends SQLiteOpenHelper {
 
     private static String DB_PATH = "/data/data/" + "com.example.sql_failure" + "/databases/";
-    private static String DB_NAME = "myDB1.db";
-    String dbpath = DB_PATH + DB_NAME;
+
     InputStream input;
 
     public CompDBHper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version,InputStream input) {
@@ -32,20 +31,27 @@ public class CompDBHper extends SQLiteOpenHelper {
     }
     /***/
     public boolean createDatabase() {
-        boolean dbExist = checkDatabase();
+        boolean dbExist1 = checkDatabase("myDB1.db");
         this.getReadableDatabase();
-        if (dbExist == false) {
-            if (copyDatabase() == false) {
+        if (dbExist1 == false) {
+            if (copyDatabase("myDB1.db") == false) {
+                return false;
+            }
+        }
+        boolean dbExist2 = checkDatabase("myDB2.db");
+        this.getReadableDatabase();
+        if (dbExist2 == false) {
+            if (copyDatabase("myDB2.db") == false) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean checkDatabase() {
+    private boolean checkDatabase(String dbname) {
         SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(dbpath,
+            checkDB = SQLiteDatabase.openDatabase(DB_PATH + dbname,
                     null, SQLiteDatabase.OPEN_READONLY);
         } catch (SQLiteException e) {
             return false;
@@ -57,10 +63,10 @@ public class CompDBHper extends SQLiteOpenHelper {
         return false;
     }
 
-    private boolean copyDatabase() {
+    private boolean copyDatabase(String dbname) {
         try {
             this.getReadableDatabase();
-            String outFileName = DB_PATH + DB_NAME;
+            String outFileName = DB_PATH + dbname;
             OutputStream output =
                     new FileOutputStream(outFileName);
             byte [] buffer = new byte[1024];
@@ -88,9 +94,9 @@ public class CompDBHper extends SQLiteOpenHelper {
 
     }
     //查詢
-    public ArrayList<String> get(String sql){
+    public ArrayList<String> get(String dbname,String sql){
         SQLiteDatabase db;
-        db=SQLiteDatabase.openOrCreateDatabase(dbpath,null,null);
+        db=SQLiteDatabase.openOrCreateDatabase(DB_PATH + dbname,null,null);
 
         Cursor recSet=db.rawQuery(sql,null);
         ArrayList<String> recAry=new ArrayList<String>();
@@ -140,6 +146,7 @@ public class CompDBHper extends SQLiteOpenHelper {
                         "','" + result.get(9) +
                         "','" + result.get(10) +
                         "','" + result.get(11) +
+                        //"','" + result.get(12) +
                         "')";
                 sql_command=tmp2;
                 break;

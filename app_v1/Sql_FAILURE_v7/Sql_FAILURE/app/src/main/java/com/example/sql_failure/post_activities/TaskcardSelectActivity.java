@@ -136,7 +136,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
 
         post_type=getIntent().getExtras().getString("post_type");
         SQL_command="SELECT DISTINCT taskcard_pkey,taskcard_name FROM " + TBname + " WHERE taskcard_sys='" + post_type + "'";
-        recSet=dbHper.get(SQL_command);
+        recSet=dbHper.get("myDB1.db",SQL_command);
         taskcard_result=pre_work();
         //組合工作說明書的字串(taskcard_code + taskcard_name)
         taskcard_list=new ArrayList<>();
@@ -207,13 +207,13 @@ public class TaskcardSelectActivity extends AppCompatActivity {
 
                             //依工作說明書會有 a、b、c 3種類型(location_equipment)會影響到本頁面的配置，在此做判斷並處理
                             SQL_command="SELECT location_equipment FROM " + TBname + " WHERE taskcard_sys='" + post_type + "' AND taskcard_pkey='" + taskcard_result.get(which*2) + "' AND field17 IS NOT NULL";
-                            recSet=dbHper.get(SQL_command);
+                            recSet=dbHper.get("myDB1.db",SQL_command);
                             ArrayList<String> location_equipment=new ArrayList<>();
                             location_equipment=pre_work();//取得類型
 
                             //依選擇的工作說明書選擇相對應的地點
                             SQL_command="SELECT field17 FROM " + TBname + " WHERE taskcard_sys='" + post_type + "' AND taskcard_pkey='" + taskcard_result.get(which*2) + "' AND field17 IS NOT NULL";
-                            recSet=dbHper.get(SQL_command);
+                            recSet=dbHper.get("myDB1.db",SQL_command);
 
                             location_preResult=pre_work();
                             ArrayList<String> location_result=comma_work(location_preResult);
@@ -293,7 +293,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                             selected_location= location_list.get(which);//要寫入資料庫的格式
 
                             SQL_command="SELECT type FROM " + TBname + " WHERE taskcard_sys='" + post_type + "' AND taskcard_pkey='" + selected_taskcard + "' AND field17 IS NOT NULL";
-                            recSet=dbHper.get(SQL_command);
+                            recSet=dbHper.get("myDB1.db",SQL_command);
                             ArrayList<String> attachment_list=pre_work();
                             attachment_be_set=new ArrayList<>();
                             for(int x=0;x< location_preResult.size();x++){//x:組

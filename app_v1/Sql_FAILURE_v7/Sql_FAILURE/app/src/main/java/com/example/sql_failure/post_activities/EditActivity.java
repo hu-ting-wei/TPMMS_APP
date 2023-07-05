@@ -73,7 +73,7 @@ public class EditActivity extends AppCompatActivity {
         //      5.額外拿取PMID
         //1.
         SQL_command="SELECT taskcard_attach_pkey FROM check_condition";
-        recSet=dbHper.get(SQL_command);
+        recSet=dbHper.get("myDB1.db",SQL_command);
         ArrayList<String> taskcard_attach_pkey_Array=pre_work();//找出taskcard_attach_pkey
 
         ArrayList<String> pkey_and_attach=new ArrayList<>();//存放拆成兩項的ArrayList{附件名稱,taskcard_pkey,...}
@@ -89,7 +89,7 @@ public class EditActivity extends AppCompatActivity {
         ArrayList<String> top_three_arr=new ArrayList<>();//前三項
         for(int j=0;j<pkey_and_attach.size();j+=2){
             SQL_command="SELECT taskcard_sys,taskcard_name,field17 FROM spinner_system WHERE type='" + pkey_and_attach.get(j) + "' AND taskcard_pkey='" + pkey_and_attach.get(j+1) + "'";
-            recSet=dbHper.get(SQL_command);
+            recSet=dbHper.get("myDB1.db",SQL_command);
             ArrayList<String> result=pre_work();//找出taskcard_sys,taskcard_name,field17
             String attach_field=pkey_and_attach.get(j) + "(" + result.get(2) + ")";//組裝附件名稱與field17
             result.set(2,attach_field); //取代原本的值
@@ -102,11 +102,11 @@ public class EditActivity extends AppCompatActivity {
         }
         //4.
         SQL_command="SELECT create_date,location_equipment_tk,WPS FROM check_condition";
-        recSet=dbHper.get(SQL_command);
+        recSet=dbHper.get("myDB1.db",SQL_command);
         ArrayList<String> last_three_arr=pre_work();//找出create_date,location_equipment_tk,WPS，後三項
         //5.
         SQL_command="SELECT PMID FROM check_condition";
-        recSet=dbHper.get(SQL_command);
+        recSet=dbHper.get("myDB1.db",SQL_command);
         ArrayList<String> PMID_arr=pre_work();//找出PMID
         //宣告RecyclerView
         rvEditItemView=((RecyclerView) findViewById(R.id.rvIdEditItemView));
