@@ -866,7 +866,7 @@ public class HomeFragment extends Fragment {
         //儲存時將原有資料刪除，重寫入一次
         String sql="DELETE FROM checked_result WHERE PMID='" + PMID + "'";
         compDBHper.delete_update(sql);
-        compDBHper.set(TBname,PMID,result_dim1,taskcard_attach_item_pkey_1);
+        compDBHper.set("checked_result",PMID,result_dim1,taskcard_attach_item_pkey_1);
     }
     /********工具*********/
     //資料庫資料處理

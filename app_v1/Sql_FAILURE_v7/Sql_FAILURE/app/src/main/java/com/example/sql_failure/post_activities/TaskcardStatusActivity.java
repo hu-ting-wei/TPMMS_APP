@@ -220,11 +220,13 @@ public class TaskcardStatusActivity extends AppCompatActivity {
 
 
                 String taskcard_attach_pkey=selected_taskcard + "-" + selected_attachment;
+                String type="a";
                 String[] baseList={"LUDP","TPEP","WUDP","YULP","ZUDP"};
 
                 ArrayList<String> status_result=new ArrayList<>();
                 status_result.add(PMID);
                 status_result.add(taskcard_attach_pkey);
+                status_result.add(type);
                 status_result.add(selected_location);
                 status_result.add(weather);
                 status_result.add(temperature);
