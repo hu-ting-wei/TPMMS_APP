@@ -46,6 +46,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
 
     private ArrayList<String> recSet;
     private String SQL_command;
+    private static final String DBname="myDB1.db";
     private static final int DBversion=1;
 
     private boolean dateEnable,taskcardEnable,locationEnable,attachEnable=false;
@@ -80,18 +81,11 @@ public class TaskcardSelectActivity extends AppCompatActivity {
     }
     private void build_view(){
         try {
-            InputStream am=this.getAssets().open("myDB1.db");
-            dbHper=new CompDBHper(this,"myDB1.db",null,DBversion,am);
+            InputStream am=this.getAssets().open(DBname);
+            dbHper=new CompDBHper(this,DBname,null,DBversion,am);
         } catch (IOException e) {
             throw new Error(e.toString());
         }
-        try {
-            InputStream am=this.getAssets().open("myDB2.db");
-            dbHper=new CompDBHper(this,"myDB2.db",null,DBversion,am);
-        } catch (IOException e) {
-            throw new Error(e.toString());
-        }
-
         taskcardToolbar=((Toolbar) findViewById(R.id.taskcardToolbar));
         setSupportActionBar(taskcardToolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -140,8 +134,9 @@ public class TaskcardSelectActivity extends AppCompatActivity {
         }
 
         post_type=getIntent().getExtras().getString("post_type");
+
         SQL_command="SELECT DISTINCT taskcard_pkey,taskcard_name FROM taskcard_new WHERE taskcard_sys='" + post_type + "'";
-        recSet=dbHper.get("myDB2.db",SQL_command);
+        recSet=dbHper.get(SQL_command);
         taskcard_result=pre_work();
         //組合工作說明書的字串(taskcard_code + taskcard_name)
         taskcard_list=new ArrayList<>();
@@ -212,13 +207,13 @@ public class TaskcardSelectActivity extends AppCompatActivity {
 
                             //依工作說明書會有 a、b、c 3種類型(location_equipment)會影響到本頁面的配置，在此做判斷並處理
                             SQL_command="SELECT DISTINCT type FROM taskcard_attach_new WHERE taskcard_attach_pkey LIKE '" + selected_taskcard + "%'";
-                            recSet=dbHper.get("myDB2.db",SQL_command);
+                            recSet=dbHper.get(SQL_command);
                             ArrayList<String> location_equipment=new ArrayList<>();
                             location_equipment=pre_work();//取得類型
 
                             //依選擇的工作說明書選擇相對應的地點
                             SQL_command="SELECT location FROM taskcard_new WHERE taskcard_pkey='" + selected_taskcard;
-                            recSet=dbHper.get("myDB2.db",SQL_command);
+                            recSet=dbHper.get(SQL_command);
 
                             location_preResult=pre_work();
                             location_list=comma_work(location_preResult);
@@ -295,7 +290,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                             selected_location= location_list.get(which);//要寫入資料庫的格式
 
                             SQL_command="SELECT attach FROM taskcard_attach_new WHERE taskcard_attach_pkey LIKE'" + selected_taskcard + "%'";
-                            recSet=dbHper.get("myDB2.db",SQL_command);
+                            recSet=dbHper.get(SQL_command);
                             ArrayList<String> attachment_list=pre_work();
                             attachment_be_set=new ArrayList<>();
                             for(int x=0;x< location_preResult.size();x++){//x:組

@@ -94,7 +94,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             edit_PMID= getIntent().getExtras().getString("PMID");
             taskcard_name=getIntent().getExtras().getString("taskcard_name");//顯示於toolbar
             String SQL_command="SELECT * FROM " + TBname  + " WHERE PMID='" + edit_PMID + "'";   //拿取過去紀錄
-            recSet=compDBHper.get("myDB1.db",SQL_command);
+            recSet=compDBHper.get(SQL_command);
             ArrayList<String> history=pre_work();//去除#的內容(內文)
             checked_date=history.get(10);
             tvDays.setText("test");
@@ -207,7 +207,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             if (postMod.equals("new")){ //寫入資料庫
                 String PMID;
                 String SQL_command="SELECT PMID FROM " + TBname ;
-                recSet=compDBHper.get("myDB1.db",SQL_command);
+                recSet=compDBHper.get(SQL_command);
                 ArrayList<String> PMID_arr=pre_work();//去除#的內容(內文)
                 //流水號，初始為1，再來就是最後一筆的流水號往上+1
                 if(PMID_arr.size()==0){

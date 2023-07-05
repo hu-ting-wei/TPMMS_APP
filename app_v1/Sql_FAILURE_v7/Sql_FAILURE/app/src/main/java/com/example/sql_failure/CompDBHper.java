@@ -21,6 +21,8 @@ import java.util.ArrayList;
 public class CompDBHper extends SQLiteOpenHelper {
 
     private static String DB_PATH = "/data/data/" + "com.example.sql_failure" + "/databases/";
+    private static String DB_NAME = "myDB1.db";
+    String dbpath = DB_PATH + DB_NAME;
 
     InputStream input;
 
@@ -31,27 +33,20 @@ public class CompDBHper extends SQLiteOpenHelper {
     }
     /***/
     public boolean createDatabase() {
-        boolean dbExist1 = checkDatabase("myDB1.db");
+        boolean dbExist1 = checkDatabase();
         this.getReadableDatabase();
         if (dbExist1 == false) {
-            if (copyDatabase("myDB1.db") == false) {
-                return false;
-            }
-        }
-        boolean dbExist2 = checkDatabase("myDB2.db");
-        this.getReadableDatabase();
-        if (dbExist2 == false) {
-            if (copyDatabase("myDB2.db") == false) {
+            if (copyDatabase() == false) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean checkDatabase(String dbname) {
+    private boolean checkDatabase() {
         SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(DB_PATH + dbname,
+            checkDB = SQLiteDatabase.openDatabase(dbpath,
                     null, SQLiteDatabase.OPEN_READONLY);
         } catch (SQLiteException e) {
             return false;
@@ -63,10 +58,10 @@ public class CompDBHper extends SQLiteOpenHelper {
         return false;
     }
 
-    private boolean copyDatabase(String dbname) {
+    private boolean copyDatabase() {
         try {
             this.getReadableDatabase();
-            String outFileName = DB_PATH + dbname;
+            String outFileName = dbpath;
             OutputStream output =
                     new FileOutputStream(outFileName);
             byte [] buffer = new byte[1024];
@@ -94,9 +89,9 @@ public class CompDBHper extends SQLiteOpenHelper {
 
     }
     //查詢
-    public ArrayList<String> get(String dbname,String sql){
+    public ArrayList<String> get(String sql){
         SQLiteDatabase db;
-        db=SQLiteDatabase.openOrCreateDatabase(DB_PATH + dbname,null,null);
+        db=SQLiteDatabase.openOrCreateDatabase(dbpath,null,null);
 
         Cursor recSet=db.rawQuery(sql,null);
         ArrayList<String> recAry=new ArrayList<String>();
