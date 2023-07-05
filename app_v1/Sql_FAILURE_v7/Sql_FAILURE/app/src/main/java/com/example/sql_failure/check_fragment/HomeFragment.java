@@ -164,13 +164,13 @@ public class HomeFragment extends Fragment {
 
         //找出所有項目(不分itemID)
         SQL_command="SELECT DISTINCT item_description FROM " + TBname;
-        recSet=compDBHper.get("myDB1.db",SQL_command);
+        recSet=compDBHper.get(SQL_command);
         ArrayList<String> ALL_item_description_set=pre_work();
         ALL_item_description_count=ALL_item_description_set.size();
 
         //找出所有細項目(不分itemID、取全部以防不夠)
         SQL_command="SELECT standard_type FROM " + TBname;
-        recSet=compDBHper.get("myDB1.db",SQL_command);
+        recSet=compDBHper.get(SQL_command);
         all_standard_type=pre_work();
         content_item_count=all_standard_type.size();
 
@@ -178,7 +178,7 @@ public class HomeFragment extends Fragment {
         content_et=new EditText[ALL_item_description_count][content_item_count];//內文EditText的監聽(二維:組、每組細項(取全部以防不夠))
         //找出最外層item_ID組數
         SQL_command="SELECT DISTINCT itemID,item FROM " + TBname;
-        recSet=compDBHper.get("myDB1.db",SQL_command);
+        recSet=compDBHper.get(SQL_command);
         item_ID_set=pre_work();
         int item_ID_count=item_ID_set.size();
         db_result=new ArrayList<>();
@@ -187,7 +187,7 @@ public class HomeFragment extends Fragment {
         for(int x=0;x<item_ID_count/2;x++){
             /**************************************************************************************************/
             SQL_command="SELECT DISTINCT item_description FROM " + TBname + " WHERE itemID='" + item_ID_set.get(x*2) + "'";
-            recSet=compDBHper.get("myDB1.db",SQL_command);
+            recSet=compDBHper.get(SQL_command);
             item_description_set=pre_work();
             int item_description_count=item_description_set.size();//單個itemID所對應到的項目數量
             //開始建置
@@ -196,7 +196,7 @@ public class HomeFragment extends Fragment {
             }
         }
         SQL_command="SELECT taskcard_attach_item_pkey FROM " + TBname;
-        recSet=compDBHper.get("myDB1.db",SQL_command);
+        recSet=compDBHper.get(SQL_command);
         taskcard_attach_item_pkey=pre_work();
 
         //以上初始完成
@@ -208,7 +208,7 @@ public class HomeFragment extends Fragment {
 
         else if (postMod.equals("edit")){
             SQL_command="SELECT data FROM checked_result WHERE PMID='" + PMID + "'";
-            recSet=compDBHper.get("myDB1.db",SQL_command);
+            recSet=compDBHper.get(SQL_command);
             ArrayList<String> history_arr=pre_work();//去除#的內容(內文)
 
             //二維id array轉一維結果
@@ -277,7 +277,7 @@ public class HomeFragment extends Fragment {
         ArrayList<String> innerResultList=new ArrayList<>();
         //內文的項目(放這的目的是先分出有無內文)
         SQL_command="SELECT check_list,standard_type,standard FROM " + TBname + " WHERE item_description='" + item_description_set.get(check_list) + "' AND check_list IS NOT NULL";
-        recSet=compDBHper.get("myDB1.db",SQL_command);
+        recSet=compDBHper.get(SQL_command);
         check_set=pre_work();//去除#的內容(內文)
         check_set_count=check_set.size();//計算所有內容物(除以3等於有幾組內容物)，於內文中使用
 
