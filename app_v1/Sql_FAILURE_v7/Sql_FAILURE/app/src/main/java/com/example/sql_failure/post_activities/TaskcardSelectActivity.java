@@ -212,7 +212,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                             location_equipment=pre_work();//取得類型
 
                             //依選擇的工作說明書選擇相對應的地點
-                            SQL_command="SELECT location FROM taskcard_new WHERE taskcard_pkey='" + selected_taskcard;
+                            SQL_command="SELECT location FROM taskcard_new WHERE taskcard_pkey='" + selected_taskcard+"'";
                             recSet=dbHper.get(SQL_command);
 
                             location_preResult=pre_work();
