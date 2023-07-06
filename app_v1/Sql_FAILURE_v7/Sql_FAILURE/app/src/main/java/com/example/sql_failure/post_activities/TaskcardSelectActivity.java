@@ -239,8 +239,6 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                     btLocation.setHint("選擇里程");
                                     tvAttach.setVisibility(View.INVISIBLE);
                                     btAttachment.setVisibility(View.INVISIBLE);
-
-
                                     break;
                             }
 

@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import com.example.sql_failure.check_fragment.BookFragment;
+import com.example.sql_failure.check_fragment.CreateFragment;
 import com.example.sql_failure.check_fragment.HomeFragment;
 import com.example.sql_failure.check_fragment.MMEFragment;
 import com.example.sql_failure.check_fragment.StatusFragment;
@@ -60,7 +61,7 @@ public class CheckActivity extends AppCompatActivity {
                     replaceFragment(new StatusFragment());
                     break;
                 case R.id.bnavSave:
-                    HomeFragment.save();
+                    CreateFragment.save();
                     break;
             }
             return true;
@@ -105,7 +106,7 @@ public class CheckActivity extends AppCompatActivity {
                 ad_save.setPositiveButton("是", new DialogInterface.OnClickListener() {//退出按鈕
                     public void onClick(DialogInterface dialog, int i) {
                         // TODO Auto-generated method stub
-                        HomeFragment.save();
+                        CreateFragment.save();
                         Intent intent=new Intent(CheckActivity.this, MainActivity.class);
                         startActivity(intent);
 
