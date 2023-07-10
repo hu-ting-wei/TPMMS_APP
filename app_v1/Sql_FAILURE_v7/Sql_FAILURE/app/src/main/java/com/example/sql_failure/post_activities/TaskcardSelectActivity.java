@@ -450,20 +450,6 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                     ArrayAdapter adapter = new ArrayAdapter(TaskcardSelectActivity.this,android.R.layout.simple_spinner_item,tk_list);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     spnEnd.setAdapter(adapter);
-                    try {
-                        Field popup = Spinner.class.getDeclaredField("mPopup");
-                        popup.setAccessible(true);
-
-                        // Get private mPopup member variable and try cast to ListPopupWindow
-                        android.widget.ListPopupWindow popupWindow = (android.widget.ListPopupWindow) popup.get(spnEnd);
-
-                        // Set popupWindow height to 500px
-                        assert popupWindow != null;
-                        popupWindow.setHeight(500);
-                    }
-                    catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
-                        // silently fail...
-                    }
 
                     new AlertDialog.Builder(TaskcardSelectActivity.this)
                             .setTitle("選擇里程")
@@ -493,6 +479,8 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             btAttachment.setText(attachment_be_set.get(which));
                             selected_attachment= attachment_be_set.get(which);//要寫入資料庫的格式
+                            String[] attach=selected_attachment.split("\\(");
+                            selected_attachment=attach[0];
                             dialog.dismiss();
 
                             if(btAttachment.getText()!=null){
