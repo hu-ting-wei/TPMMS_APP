@@ -1,5 +1,7 @@
 package com.example.sql_failure.check_fragment;
 
+import static android.content.Intent.getIntent;
+
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment {
     private TextView tvFragCheck;
     private String taskcard_name;
+    private String taskcard_attach_pkey;
     private static String PMID;
     private String postMod;
 
@@ -144,6 +147,24 @@ public class HomeFragment extends Fragment {
         tvFragCheck.setText(taskcard_name);
         tvFragCheck.setSelected(true);
 
+        String SQL_command="SELECT type,taskcard_attach_pkey,location_equipment_tk FROM " + "check_condition"  + " WHERE PMID=" + PMID + "";   //拿取過去紀錄
+        recSet=compDBHper.get(SQL_command);
+        ArrayList<String> history=pre_work();
+        RadioGroup rgRoom=((RadioGroup) myView.findViewById(R.id.rgRoom));
+        switch (history.get(0)){
+            case "a":
+                taskcard_attach_pkey=history.get(1);
+
+                break;
+            case "b":
+
+                break;
+            case "c":
+
+                break;
+
+        }
+
         replaceFragment(new CreateFragment());
 
 
@@ -174,6 +195,8 @@ public class HomeFragment extends Fragment {
         fragmentTransaction.replace(R.id.frameLayout5,fragment);
         fragmentTransaction.commit();
     }
+
+
 
 
 }

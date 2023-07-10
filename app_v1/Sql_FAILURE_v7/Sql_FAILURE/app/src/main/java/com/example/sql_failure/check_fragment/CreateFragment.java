@@ -35,7 +35,7 @@ import java.util.ArrayList;
 
 public class CreateFragment extends Fragment {
     private TextView tvFragCheck;
-    private String taskcard_name;
+    private String taskcard_attach_pkey;
     private static String PMID;
     private String postMod;
 
@@ -46,7 +46,7 @@ public class CreateFragment extends Fragment {
     /**SQL**/
     private static final String DBname="myDB1.db";
     private static final int DBversion=1;
-    private static final String TBname="check_item";
+    private static final String TBname="taskcard_attach_template_new";
     private static final int itemID=52;
     //CompDBHper compDBHper=new CompDBHper(getActivity(),DBname,null,DBversion);
     static CompDBHper compDBHper;
@@ -119,7 +119,7 @@ public class CreateFragment extends Fragment {
     public void onAttach(Context context){
         super.onAttach(context);
         ArrayList<String> fromStatus=((CheckActivity)context).toValue();
-        taskcard_name=fromStatus.get(0);
+        //taskcard_name=fromStatus.get(0);
         PMID=fromStatus.get(1);
         postMod=fromStatus.get(2);
     }
@@ -147,16 +147,20 @@ public class CreateFragment extends Fragment {
             throw new Error(e.toString());
         }
         /****/
+        String SQL_command="SELECT type,taskcard_attach_pkey FROM " + "check_condition"  + " WHERE PMID='" + PMID + "'";   //拿取過去紀錄
+        recSet=compDBHper.get(SQL_command);
+        ArrayList<String> history=pre_work();
+        taskcard_attach_pkey=history.get(1);
 
 
         //找出所有項目(不分itemID)
-        SQL_command="SELECT DISTINCT item_description FROM " + TBname;
+        SQL_command="SELECT item_description FROM " + TBname +" WHERE taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND parent_child='p' AND standard_type < 3";
         recSet=compDBHper.get(SQL_command);
         ArrayList<String> ALL_item_description_set=pre_work();
         ALL_item_description_count=ALL_item_description_set.size();
 
         //找出所有細項目(不分itemID、取全部以防不夠)
-        SQL_command="SELECT standard_type FROM " + TBname;
+        SQL_command="SELECT standard_type FROM " + TBname+" WHERE taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND standard_type < 3";
         recSet=compDBHper.get(SQL_command);
         all_standard_type=pre_work();
         content_item_count=all_standard_type.size();
@@ -164,7 +168,7 @@ public class CreateFragment extends Fragment {
         content_rg=new RadioGroup[ALL_item_description_count][content_item_count];//內文radio group的監聽(二維:組、每組細項(取全部以防不夠))
         content_et=new EditText[ALL_item_description_count][content_item_count];//內文EditText的監聽(二維:組、每組細項(取全部以防不夠))
         //找出最外層item_ID組數
-        SQL_command="SELECT DISTINCT itemID,item FROM " + TBname;
+        SQL_command="SELECT DISTINCT itemID,item FROM " + TBname+" WHERE taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND standard_type < 3";
         recSet=compDBHper.get(SQL_command);
         item_ID_set=pre_work();
         int item_ID_count=item_ID_set.size();
@@ -173,7 +177,7 @@ public class CreateFragment extends Fragment {
         //建置主要分成三層:最外層item_ID、中層base_creator檢查項目item_description、裏層content_creator檢查細項check_list(可能有可能沒有)
         for(int x=0;x<item_ID_count/2;x++){
             /**************************************************************************************************/
-            SQL_command="SELECT DISTINCT item_description FROM " + TBname + " WHERE itemID='" + item_ID_set.get(x*2) + "'";
+            SQL_command="SELECT item_description FROM " + TBname + " WHERE itemID='" + item_ID_set.get(x*2) + "' AND item='" + item_ID_set.get(x*2+1)+"' AND taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND parent_child='p' AND standard_type < 3";
             recSet=compDBHper.get(SQL_command);
             item_description_set=pre_work();
             int item_description_count=item_description_set.size();//單個itemID所對應到的項目數量
@@ -182,20 +186,23 @@ public class CreateFragment extends Fragment {
                 base_creator(item_description_set.get(i),i,x);
             }
         }
-        SQL_command="SELECT taskcard_attach_item_pkey FROM " + TBname;
+        SQL_command="SELECT taskcard_attach_item_pkey FROM " + TBname+" WHERE taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND standard_type < 3";
         recSet=compDBHper.get(SQL_command);
         taskcard_attach_item_pkey=pre_work();
 
         //以上初始完成
         //初始完成時就先寫入db，以防第一次登載時沒儲存就離開(導致checked_result中無資料提供編輯時查找)
-        if (postMod.equals("new")){
+
+        SQL_command="SELECT data FROM checked_result WHERE PMID='" + PMID + "'";
+        recSet=compDBHper.get(SQL_command);
+
+        if (recSet.size()==0){
             save();
         }
         //如果是編輯模式 需要將歷史紀錄填回表格
 
-        else if (postMod.equals("edit")){
-            SQL_command="SELECT data FROM checked_result WHERE PMID='" + PMID + "'";
-            recSet=compDBHper.get(SQL_command);
+        else {
+
             ArrayList<String> history_arr=pre_work();//去除#的內容(內文)
 
             //二維id array轉一維結果
@@ -264,7 +271,7 @@ public class CreateFragment extends Fragment {
         ArrayList<Integer> innerIDlist=new ArrayList<>();
         ArrayList<String> innerResultList=new ArrayList<>();
         //內文的項目(放這的目的是先分出有無內文)
-        SQL_command="SELECT check_list,standard_type,standard FROM " + TBname + " WHERE item_description='" + item_description_set.get(check_list) + "' AND check_list IS NOT NULL";
+        SQL_command="SELECT check_list,standard_type,standard FROM " + TBname + " WHERE item_description='" + title + "' AND taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND itemID='" + item_ID_set.get(current_itemID*2) + "' AND item='" + item_ID_set.get(current_itemID*2+1) + "' AND parent_child='c' AND standard_type < 3";
         recSet=compDBHper.get(SQL_command);
         check_set=pre_work();//去除#的內容(內文)
         check_set_count=check_set.size();//計算所有內容物(除以3等於有幾組內容物)，於內文中使用
@@ -318,7 +325,7 @@ public class CreateFragment extends Fragment {
 
                     //找出被點擊按鈕當前的位置
                     int current_set=0,current_item=0;
-                    for (int j=0;j<ALL_item_description_count;j++){
+                    for (int j=0;j<element_IDs.size();j++){
                         for (int k=0;k<element_IDs.get(j).size();k++){
                             if(radioGroup.getId()==element_IDs.get(j).get(k)){
                                 //找出被點擊按鈕當前的位置
@@ -425,7 +432,7 @@ public class CreateFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int ii, int i1, int i2) {
                 int current_set=0;
                 int current_item=0;
-                for (int j=0;j<ALL_item_description_count;j++){
+                for (int j=0;j<element_IDs.size();j++){
                     for (int k=0;k<element_IDs.get(j).size();k++){
                         if(fdf[0]==element_IDs.get(j).get(k) || editText_id==element_IDs.get(j).get(k)){
                             //找出被點擊按鈕(fdf[0])id在陣列中(element_IDs)的位置
@@ -494,7 +501,7 @@ public class CreateFragment extends Fragment {
                             int int_result=0;//對應radio button位置(合格0、異常1)
                             String string_result = null;//對應到要寫入結果的值
                             int current_set=0,current_item=0;
-                            for (int j=0;j<ALL_item_description_count;j++){
+                            for (int j=0;j<element_IDs.size();j++){
                                 for (int k=0;k<element_IDs.get(j).size();k++){
                                     if(radioGroup.getId()==element_IDs.get(j).get(k)){
                                         //找出被點擊按鈕當前的位置
@@ -507,7 +514,7 @@ public class CreateFragment extends Fragment {
                             String text= (String) radioButton.getText();
                             db_result.get(current_set).set(current_item,text);
 
-                            for (int c=1;c<element_IDs.get(current_set).size()-1;c++){
+                            for (int c=1;c<db_result.get(current_set).size()-1;c++){
                                 if(db_result.get(current_set).get(c)==null){
                                     return;
                                 }
@@ -593,7 +600,7 @@ public class CreateFragment extends Fragment {
                             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                                 int parentLayout=((LinearLayout) compoundButton.getParent()).getId();
                                 int current_set=0,current_item=0;
-                                for (int j=0;j<ALL_item_description_count;j++){
+                                for (int j=0;j<element_IDs.size();j++){
                                     for (int k=0;k<element_IDs.get(j).size();k++){
                                         if(parentLayout==element_IDs.get(j).get(k)){
                                             //找出被點擊按鈕當前的位置
@@ -717,6 +724,7 @@ public class CreateFragment extends Fragment {
                         }
                     });
                     String et_range=check_set.get(i*3+2);
+                    /*
 
                     String[] et_buffer={"",""};
                     int et_count=0;
@@ -741,11 +749,11 @@ public class CreateFragment extends Fragment {
                     else {
                         et_min= Integer.parseInt(String.valueOf(et_buffer[0]));
                         et_max= Integer.parseInt(String.valueOf(et_buffer[1]));
-                    }
+                    }*/
 
 
-                    int finalEt_min = et_min;
-                    int finalEt_max = et_max;
+                    int finalEt_min =0;//= et_min;
+                    int finalEt_max =0;//= et_max;
                     content_et[editText_set][i].addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -762,7 +770,7 @@ public class CreateFragment extends Fragment {
                         public void afterTextChanged(Editable editable) {
                             int current_set=0;
                             int current_item=0;
-                            for (int j=0;j<ALL_item_description_count;j++){
+                            for (int j=0;j<element_IDs.size();j++){
                                 for (int k=0;k<element_IDs.get(j).size();k++){
                                     if(fdf[0]==element_IDs.get(j).get(k) || editText_id==element_IDs.get(j).get(k)){
                                         //找出被點擊按鈕(fdf[0])id在陣列中(element_IDs)的位置
