@@ -96,14 +96,14 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             String SQL_command="SELECT * FROM " + TBname  + " WHERE PMID='" + edit_PMID + "'";   //拿取過去紀錄
             recSet=compDBHper.get(SQL_command);
             ArrayList<String> history=pre_work();//去除#的內容(內文)
-            checked_date=history.get(10);
+            checked_date=history.get(11);
             tvDays.setText("test");
-            etWeather.setText(history.get(3));
-            etTemperature.setText(history.get(4));
-            etHumidity.setText(history.get(5));
-            etWo.setText(history.get(6));
-            etResponsible.setText(history.get(7));
-            etWorker.setText(history.get(8));
+            etWeather.setText(history.get(4));
+            etTemperature.setText(history.get(5));
+            etHumidity.setText(history.get(6));
+            etWo.setText(history.get(7));
+            etResponsible.setText(history.get(8));
+            etWorker.setText(history.get(9));
             etCompany.setText("test");
             //下一步按鈕判斷
             woEnable=true;
@@ -203,6 +203,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             String wo=etWo.getText().toString();
             String responsible=etResponsible.getText().toString();
             String worker=etWorker.getText().toString();
+            String type="a";
 
             if (postMod.equals("new")){ //寫入資料庫
                 String PMID;
@@ -220,7 +221,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
 
 
                 String taskcard_attach_pkey=selected_taskcard + "-" + selected_attachment;
-                String type="a";
+
                 String[] baseList={"LUDP","TPEP","WUDP","YULP","ZUDP"};
 
                 ArrayList<String> status_result=new ArrayList<>();
@@ -243,8 +244,8 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             }
             else{   //更新資料庫
                 String SQL_command="UPDATE " + TBname +
-                                    " SET " +
-                                            "weather='" + weather + "',temperature='" + temperature +
+                                    " SET " + "type='" + type +
+                                            "',weather='" + weather + "',temperature='" + temperature +
                                             "',humidity='" + humidity + "',WO='" + wo +
                                             "',WPS='" + responsible + "',workers='" + worker + "'" +
                                     " WHERE PMID='" + edit_PMID + "'";
