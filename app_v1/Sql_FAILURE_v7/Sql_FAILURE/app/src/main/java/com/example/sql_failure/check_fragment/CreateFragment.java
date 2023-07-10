@@ -271,7 +271,7 @@ public class CreateFragment extends Fragment {
         ArrayList<Integer> innerIDlist=new ArrayList<>();
         ArrayList<String> innerResultList=new ArrayList<>();
         //內文的項目(放這的目的是先分出有無內文)
-        SQL_command="SELECT check_list,standard_type,standard FROM " + TBname + " WHERE item_description='" + title + "' AND taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND itemID='" + item_ID_set.get(current_itemID*2) + "' AND item='" + item_ID_set.get(current_itemID*2+1) + "' AND parent_child='c' AND standard_type < 3";
+        SQL_command="SELECT check_list,standard_type,standard,check_list_equation FROM " + TBname + " WHERE item_description='" + title + "' AND taskcard_attach_pkey='" + taskcard_attach_pkey + "' AND itemID='" + item_ID_set.get(current_itemID*2) + "' AND item='" + item_ID_set.get(current_itemID*2+1) + "' AND parent_child='c' AND standard_type < 3";
         recSet=compDBHper.get(SQL_command);
         check_set=pre_work();//去除#的內容(內文)
         check_set_count=check_set.size();//計算所有內容物(除以3等於有幾組內容物)，於內文中使用
@@ -477,10 +477,10 @@ public class CreateFragment extends Fragment {
         margin_set.setMargins(100,0,0,0);
         switch (check_set.get(1)){
             case "0":
-                for (int i=0;i<(check_set_count/3);i++){
+                for (int i=0;i<(check_set_count/4);i++){
                     TextView tvCheckItem=new TextView(getActivity());
                     tvCheckItem.setTextSize(28);
-                    tvCheckItem.setText(check_set.get(i*3));
+                    tvCheckItem.setText(check_set.get(i*4));
                     tvCheckItem.setPadding(100,0,0,0);
                     tvCheckItem.setHeight(100);
                     tvCheckItem.setGravity(Gravity.CENTER_VERTICAL);
@@ -570,10 +570,10 @@ public class CreateFragment extends Fragment {
                 radio_group_set+=1;//作為radio_group組數"連續"標記
                 break;
             case "1":
-                for (int i=0;i<(check_set_count/3);i++){
+                for (int i=0;i<(check_set_count/4);i++){
                     TextView tvMultiCheckItem=new TextView(getActivity());
                     tvMultiCheckItem.setTextSize(28);
-                    tvMultiCheckItem.setText(check_set.get(i*3));
+                    tvMultiCheckItem.setText(check_set.get(i*4));
                     tvMultiCheckItem.setPadding(100,0,0,0);
                     tvMultiCheckItem.setHeight(100);
                     tvMultiCheckItem.setGravity(Gravity.CENTER_VERTICAL);
@@ -587,7 +587,7 @@ public class CreateFragment extends Fragment {
                     innerResultList.add(null);
                     id+=1;
 
-                    String[] checkbox_item=check_set.get(i*3).split(",");
+                    String[] checkbox_item=check_set.get(i*4).split(",");
                     for (int x=0;x<checkbox_item.length;x++){
                         CheckBox checkBox=new CheckBox(getActivity());
                         checkBox.setTextSize(28);
@@ -675,12 +675,12 @@ public class CreateFragment extends Fragment {
                 }
                 break;
             case "2":
-                for (int i=0;i<(check_set_count/3);i++){
+                for (int i=0;i<(check_set_count/4);i++){
                     LinearLayout item_box=new LinearLayout(getActivity());
                     item_box.setOrientation(LinearLayout.HORIZONTAL);
                     TextView tvInputItem=new TextView(getActivity());
                     tvInputItem.setTextSize(28);
-                    tvInputItem.setText(check_set.get(i*3));
+                    tvInputItem.setText(check_set.get(i*4));
                     tvInputItem.setPadding(100,0,0,0);
                     tvInputItem.setLayoutParams(weight_set);
                     tvInputItem.setHeight(100);
@@ -706,7 +706,7 @@ public class CreateFragment extends Fragment {
                     content_et[editText_set][i].setHeight(100);
                     content_et[editText_set][i].setGravity(Gravity.CENTER_VERTICAL);
                     content_et[editText_set][i].setBackgroundResource(R.drawable.radiobtn_unchecked);
-                    content_et[editText_set][i].setInputType(InputType.TYPE_CLASS_NUMBER);
+                    content_et[editText_set][i].setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
                     content_et[editText_set][i].setId(id);//設定id,類型以獲取結果
                     type_record.add("e");
 
@@ -723,37 +723,31 @@ public class CreateFragment extends Fragment {
                             return false;
                         }
                     });
-                    String et_range=check_set.get(i*3+2);
-                    /*
 
-                    String[] et_buffer={"",""};
-                    int et_count=0;
-                    int et_count1=0;
-                    for (int o=0;o<et_range.length();o++){
-                        if (et_range.charAt(o)>=48 && et_range.charAt(o)<=57){
-                            et_buffer[et_count]+=et_range.charAt(o);
-                            et_count1=1;
-                        }
-                        else {
-                            if (et_count1==1) {
-                                et_count+=1;
-                                et_count1=0;
-                            }
+                    String[] et_range=check_set.get(i*4+3).split(",");
+
+                    float et_min=-1;
+                    float et_max=-1;
+                    float et_min_eq=-1;
+                    float et_max_eq=-1;
+
+                    for (int o=0;o<et_range.length;o++){
+                        if (et_range[o].charAt(1)=='<' && et_range[o].charAt(2)=='='){
+                            et_max_eq=Float.parseFloat(et_range[o].substring(3));
+                        } else if (et_range[o].charAt(1)=='>' && et_range[o].charAt(2)=='=') {
+                            et_min_eq=Float.parseFloat(et_range[o].substring(3));
+                        } else if (et_range[o].charAt(1)=='<' && et_range[o].charAt(2)!='=') {
+                            et_max=Float.parseFloat(et_range[o].substring(2));
+                        } else if (et_range[o].charAt(1)=='>' && et_range[o].charAt(2)!='=') {
+                            et_min=Float.parseFloat(et_range[o].substring(2));
                         }
                     }
-                    int et_min=0;
-                    int et_max=0;
-                    if(et_range.charAt(0)=='<'){
-                        et_max= Integer.parseInt(String.valueOf(et_buffer[0]));
-                    }
-                    else {
-                        et_min= Integer.parseInt(String.valueOf(et_buffer[0]));
-                        et_max= Integer.parseInt(String.valueOf(et_buffer[1]));
-                    }*/
 
 
-                    int finalEt_min =0;//= et_min;
-                    int finalEt_max =0;//= et_max;
+                    float finalEt_max = et_max;
+                    float finalEt_max_eq = et_max_eq;
+                    float finalEt_min = et_min;
+                    float finalEt_min_eq = et_min_eq;
                     content_et[editText_set][i].addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -789,9 +783,10 @@ public class CreateFragment extends Fragment {
                                 db_result.get(current_set).set(current_item, null);
                             }
                             else {
-                                int et_value=Integer.parseInt(String.valueOf(text));
+                                float et_value=Float.parseFloat(String.valueOf(text));
+                                float[] rangeCheck={finalEt_min_eq, finalEt_min, finalEt_max_eq, finalEt_max,et_value};
 
-                                if(et_value>= finalEt_min && et_value<= finalEt_max){
+                                if(RangeCheck(rangeCheck)){
                                     et.setBackgroundResource(R.drawable.radiobtn_pass);
                                 }
                                 else {
@@ -801,10 +796,16 @@ public class CreateFragment extends Fragment {
                             int int_result=0;//對應radio button位置(合格0、異常1)
                             String string_result = null;//對應到要寫入結果的值
                             for (int c=1;c<element_IDs.get(current_set).size()-1;c++){
+                                float et_value=-1;
+                                if(db_result.get(current_set).get(c)!=null){
+                                    et_value=Float.parseFloat(String.valueOf(db_result.get(current_set).get(c)));
+                                }
+
+                                float[] rangeCheck={finalEt_min_eq, finalEt_min, finalEt_max_eq, finalEt_max,et_value};
                                 if(db_result.get(current_set).get(c)==null){
                                     return;
                                 }
-                                else if(Integer.parseInt(String.valueOf(db_result.get(current_set).get(c)))>= finalEt_min &&Integer.parseInt(String.valueOf(db_result.get(current_set).get(c)))<= finalEt_max){
+                                else if(RangeCheck(rangeCheck)){
                                     int_result=0;
                                     string_result="合格";
                                 }
@@ -878,4 +879,14 @@ public class CreateFragment extends Fragment {
         }
         return AryResult;
     }
+    private Boolean RangeCheck(float[] ff){
+        if (ff[4]==-1 ) return false;
+        if (ff[0]!=-1 && ff[4]<ff[0]) return false;
+        if (ff[1]!=-1 && ff[4]<=ff[1]) return false;
+        if (ff[2]!=-1 && ff[4]>ff[2]) return false;
+        if (ff[3]!=-1 && ff[4]>=ff[3]) return false;
+        if (ff[0]==-1 && ff[1]==-1 && ff[2]==-1 && ff[3]==-1) return false;
+        return true;
+    }
+
 }
