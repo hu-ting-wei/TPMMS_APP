@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -23,9 +24,11 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.sql_failure.CompDBHper;
 import com.example.sql_failure.R;
+import com.example.sql_failure.SpinnerColorAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -54,13 +57,11 @@ public class TaskcardSelectActivity extends AppCompatActivity {
     private String post_type;//使用者選擇的登載類型(SSS、WAY"SCADA)
     private ArrayList<String> taskcard_result;//taskcard的spinner顯示的是組合過的字串，不利於資料庫搜尋，所以用原始條件做篩選條件
 
-    private ArrayList<String> taskcard_list;//顯示的taskcard list(組合過的字串)
-    private List<String> location_list;//顯示的location list
-    private ArrayList<String> attachment_be_set;//顯示的attachment list
+    private ArrayList<String> taskcard_list=new ArrayList<>();//顯示的taskcard list(組合過的字串)
+    private ArrayList<String> location_list=new ArrayList<>();//顯示在spinner上的location list
+    private ArrayList<String> attachment_be_set=new ArrayList<>();//顯示的attachment list
 
     private ArrayList<String> location_preResult;//同一個工作說明書、類型會同時有多組地點可選擇且對應不同附件，所以在spnLocationListener中要把一組一組地點拿出比對，找出相對於附件list的位置(無法直接透過SQL搜尋，因為SP1,SSP1會判斷成一樣)
-    private ArrayAdapter<String> adTaskcardList;
-    private ArrayAdapter<String> adLocationList;
     private ArrayAdapter<String> adAttachmentList;
     private String checked_date;//使用者選擇的日期
     private String selected_taskcard;//使用者選擇的taskcard
@@ -139,13 +140,11 @@ public class TaskcardSelectActivity extends AppCompatActivity {
         recSet=dbHper.get(SQL_command);
         taskcard_result=pre_work();
         //組合工作說明書的字串(taskcard_code + taskcard_name)
-        taskcard_list=new ArrayList<>();
         for(int i=0;i<taskcard_result.size();i+=2){
             String combine=taskcard_result.get(i).substring(0,(taskcard_result.get(i).length()-8))+ " " + taskcard_result.get(i+1);
             taskcard_list.add(combine);
         }
-        adTaskcardList=new ArrayAdapter<String>(this, R.layout.spinner_style,taskcard_list);
-        adTaskcardList.setDropDownViewResource(R.layout.spinner_item);
+
         btTaskcard.setBackgroundResource(R.drawable.spinner_background);
         btTaskcard.setOnClickListener(taskcardListener);
         btLocation.setOnClickListener(locationListener);
@@ -195,8 +194,8 @@ public class TaskcardSelectActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             new AlertDialog.Builder(TaskcardSelectActivity.this)
-                    .setTitle("請先選擇日期")
-                    .setAdapter(adTaskcardList, new DialogInterface.OnClickListener() {
+                    .setTitle("選擇工作說明書")
+                    .setAdapter(new SpinnerColorAdapter(TaskcardSelectActivity.this,taskcard_list), new DialogInterface.OnClickListener() {
 
                         @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
@@ -212,25 +211,24 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                             location_equipment=pre_work();//取得類型
 
                             //依選擇的工作說明書選擇相對應的地點
-                            SQL_command="SELECT location FROM taskcard_new WHERE taskcard_pkey='" + selected_taskcard;
+                            SQL_command="SELECT location_equipment FROM taskcard_attach_new WHERE taskcard_attach_pkey LIKE '" + selected_taskcard + "%'";
                             recSet=dbHper.get(SQL_command);
-
                             location_preResult=pre_work();
-                            location_list=comma_work(location_preResult);
+                            ArrayList<String> location_result=comma_work(location_preResult);
 
                             taskcard_type=location_equipment.get(0);
                             switch (taskcard_type){
                                 case "a":
                                     //a類型為預設畫面
                                     //資料處理並加入下拉選單
-                                    adLocationList=new ArrayAdapter<>(TaskcardSelectActivity.this, R.layout.spinner_style,location_list);//android.R.layout.simple_spinner_item
-                                    adLocationList.setDropDownViewResource(R.layout.spinner_item);//android.R.layout.select_dialog_singlechoice
+                                    LinkedHashSet<String> hashSet = new LinkedHashSet<>(location_result);
+                                    location_list = new ArrayList<>(hashSet);//重複的要拿掉
                                     break;
                                 case "b":
                                     //b類型為多選畫面
                                     ArrayList<String> location_buffer=new ArrayList<>();//暫存處理完
-                                    for (int i = 0; i<location_list.size(); i++){
-                                        String typeB_location=location_list.get(i).replace("_","    ");
+                                    for (int i = 0; i<location_result.size(); i++){
+                                        String typeB_location=location_result.get(i).replace("_","    ");
                                         location_buffer.add(typeB_location);
                                         location_list=location_buffer;
                                     }
@@ -241,6 +239,8 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                     btLocation.setHint("選擇里程");
                                     tvAttach.setVisibility(View.INVISIBLE);
                                     btAttachment.setVisibility(View.INVISIBLE);
+
+
                                     break;
                             }
 
@@ -280,8 +280,8 @@ public class TaskcardSelectActivity extends AppCompatActivity {
             switch (taskcard_type){
                 case "a":
                     new AlertDialog.Builder(TaskcardSelectActivity.this)
-                    .setTitle("請先選擇工作說明書")
-                    .setAdapter(adLocationList, new DialogInterface.OnClickListener() {
+                    .setTitle("選擇地點")
+                    .setAdapter(new SpinnerColorAdapter(TaskcardSelectActivity.this,location_list), new DialogInterface.OnClickListener() {
 
                         @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
@@ -289,20 +289,19 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                             btLocation.setText(location_list.get(which));
                             selected_location= location_list.get(which);//要寫入資料庫的格式
 
-                            SQL_command="SELECT attach FROM taskcard_attach_new WHERE taskcard_attach_pkey LIKE'" + selected_taskcard + "%'";
+                            SQL_command="SELECT attach,remark FROM taskcard_attach_new WHERE taskcard_attach_pkey LIKE'" + selected_taskcard + "%'";
                             recSet=dbHper.get(SQL_command);
                             ArrayList<String> attachment_list=pre_work();
-                            attachment_be_set=new ArrayList<>();
+                            attachment_be_set.clear();
                             for(int x=0;x< location_preResult.size();x++){//x:組
-                                String[] compare_buffer=location_preResult.get(x).split(",");
+                                String[] compare_buffer=location_preResult.get(x).split(",");//資料庫中抓出來的地點為字串(ex:"SP1,BSS1,ATP0")，因此需分割逗號
                                 for (int z=0;z<compare_buffer.length;z++){//找到一樣的地點就把當前組別記錄下來
                                     if(compare_buffer[z].equals(selected_location)){
-                                        attachment_be_set.add(attachment_list.get(x));
+                                        String attach_remark=attachment_list.get(x*2) + "(" + attachment_list.get(x*2+1) + ")";//ex:F1(檢查表)
+                                        attachment_be_set.add(attach_remark);
                                     }
                                 }
                             }
-                            adAttachmentList=new ArrayAdapter<>(TaskcardSelectActivity.this, R.layout.spinner_style,attachment_be_set);
-                            adAttachmentList.setDropDownViewResource(R.layout.spinner_item);
 
                             btAttachment.setText(null);
                             attachEnable=false;
@@ -332,12 +331,54 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                 case "b":
                     String selected_location[]=new String[location_list.size()];//紀錄多選下拉式選單結果的陣列
                     new AlertDialog.Builder(TaskcardSelectActivity.this)
-                            .setTitle("請先選擇工作說明書")
+                            .setTitle("選擇地點")
                             .setPositiveButton("確定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
+                                    //顯示選擇結果
+                                    ArrayList<String> selected_location_list=new ArrayList<>();//蒐集被選取項目
+                                    String display_location = "";
+                                    for (int x=0;x<selected_location.length;x++){
+                                        if(selected_location[x]!=null){
+                                            display_location += selected_location[x]+"\n";
+                                            selected_location_list.add(selected_location[x]);
+                                        }
+                                    }
+                                    if (display_location.length()!=0){
+                                        //去除字尾\n
+                                        btLocation.setText(display_location.substring(0,display_location.length()-1));
+                                    }
+                                    else {
+                                        btLocation.setText("");
+                                    }
                                     //多選單確定鍵listener(查找對應attachment)
+                                    //收集選擇的項目使用萬用字元(%)查詢，查詢結果為null的話表示所選擇的項目所屬的附件並不同。ex:%52OT1_ATP0%AT2_SSP7%89OT2_SP1%
+                                        //把底線裝回去，以利查詢
+                                    for (int j=0;j<selected_location_list.size();j++){
+                                        selected_location_list.set(j,selected_location_list.get(j).replace("    ","_"));
+                                    }
+                                        //將選擇的項目之間插入萬用字元
+                                    StringBuilder location_for_sql= new StringBuilder();
+                                    if (selected_location_list.size()==0){
+                                        location_for_sql = new StringBuilder("There are no selection");
+                                    }
+                                    else {
+                                        for (int x=0;x<selected_location_list.size();x++){
+                                            location_for_sql.append(selected_location_list.get(x)).append("%");
+                                        }
+                                    }
+                                    SQL_command="SELECT attach,remark FROM taskcard_attach_new WHERE location_equipment LIKE '%" + location_for_sql + "'";
+                                    recSet=dbHper.get(SQL_command);
+                                    ArrayList<String> attachment_list=pre_work();//組合attach,remark
+                                    attachment_be_set.clear();
+                                    if (attachment_list.size()>0){
+                                        String attach_remark=attachment_list.get(0) + "(" + attachment_list.get(1) + ")";//ex:F1(檢查表)
+                                        attachment_be_set.add(attach_remark);
+                                    }
+                                    btAttachment.setText(null);
+                                    attachEnable=false;
                                     dialogInterface.dismiss();
+
                                     if(btLocation.getText()!=null){
                                         locationEnable=true;
                                         if(dateEnable&taskcardEnable&locationEnable&attachEnable){
@@ -356,68 +397,87 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                     else{
                                         locationEnable=false;
                                     }
-                                    String display_location = "";
-                                    for (int x=0;x<selected_location.length;x++){
-                                        if(selected_location[x]!=null){
-                                            display_location += selected_location[x]+"\n";
-                                        }
-                                    }
-                                    if (display_location.length()!=0){
-                                        btLocation.setText(display_location.substring(0,display_location.length()-1));
-                                    }
-                                    else {
-                                        btLocation.setText("");
-                                    }
                                 }
                             })
                             .setMultiChoiceItems(location_list.toArray(new CharSequence[0]),null,new DialogInterface.OnMultiChoiceClickListener(){
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                                    //將點選的地點按照位置放入selected_location
                                     if(b){
                                         selected_location[i]=location_list.get(i);
                                     }
                                     else {
                                         selected_location[i]=null;
                                     }
-                                    Log.d("TAG", Arrays.toString(selected_location));
                                 }
                             }).create().show();
 
                     break;
                 case "c":
                     View mileage_layout = getLayoutInflater().inflate(R.layout.taskcard_select_mileage,null);
+                    //設定里程spinner的內容
+                    String sql_subCommand1="";
+                    for (int i=0;i<location_preResult.size();i++){
+                        if (i==location_preResult.size()-1){
+                            sql_subCommand1+="equipment_name='" + location_preResult.get(i) + "'";
+                        }
+                        else {
+                            sql_subCommand1+="equipment_name='" + location_preResult.get(i) + "' OR ";
+                        }
+                    }
+                    //取得equipment_type。ex:10(緊急逃生梯)
+                    SQL_command="SELECT equipment_type FROM wayside_equipment_type_new WHERE " + sql_subCommand1;
+                    recSet=dbHper.get(SQL_command);
+                    ArrayList<String> equipment_type=pre_work();
+
+                    //再透過equipment_type取tk_real(里程範圍)
+                    String sql_subCommand2="";
+                    for (int i=0;i<equipment_type.size();i++){
+                        if (i==equipment_type.size()-1){
+                            sql_subCommand2+="equipment_type='" + equipment_type.get(i) + "'";
+                        }
+                        else {
+                            sql_subCommand2+="equipment_type='" + equipment_type.get(i) + "' OR ";
+                        }
+                    }
+
+                    SQL_command="SELECT tk_real FROM wayside_equipment_new WHERE " + sql_subCommand2;
+                    recSet=dbHper.get(SQL_command);
+                    ArrayList<String> tk_list=pre_work();//里程範圍
+                    //塞入mileage_layout中的spinner
+                    Spinner spnStart=((Spinner) mileage_layout.findViewById(R.id.spnIdMainStartMile));
+                    spnStart.setAdapter(new SpinnerColorAdapter(TaskcardSelectActivity.this,tk_list));
+
+                    Spinner spnEnd=((Spinner) mileage_layout.findViewById(R.id.spnIdMainEndMile));
+                    ArrayAdapter adapter = new ArrayAdapter(TaskcardSelectActivity.this,android.R.layout.simple_spinner_item,tk_list);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spnEnd.setAdapter(adapter);
+                    try {
+                        Field popup = Spinner.class.getDeclaredField("mPopup");
+                        popup.setAccessible(true);
+
+                        // Get private mPopup member variable and try cast to ListPopupWindow
+                        android.widget.ListPopupWindow popupWindow = (android.widget.ListPopupWindow) popup.get(spnEnd);
+
+                        // Set popupWindow height to 500px
+                        assert popupWindow != null;
+                        popupWindow.setHeight(500);
+                    }
+                    catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
+                        // silently fail...
+                    }
+
                     new AlertDialog.Builder(TaskcardSelectActivity.this)
-                            .setTitle("請先選擇工作說明書")
+                            .setTitle("選擇里程")
                             .setView(mileage_layout)
                             .setPositiveButton("確定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    Spinner spnStart=(mileage_layout.findViewById(R.id.spnIdMainStartMile));
-                                    spnStart.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                        @Override
-                                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-                                        }
-
-                                        @Override
-                                        public void onNothingSelected(AdapterView<?> adapterView) {
-
-                                        }
-                                    });
-                                    Spinner spnEnd=(mileage_layout.findViewById(R.id.spnIdMainEndMile));
-                                    spnEnd.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                        @Override
-                                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-                                        }
-
-                                        @Override
-                                        public void onNothingSelected(AdapterView<?> adapterView) {
-
-                                        }
-                                    });
                                 }
-                            }).create().show();
+                            })
+
+                            .create().show();
                     break;
             }
         }
@@ -427,8 +487,8 @@ public class TaskcardSelectActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             new AlertDialog.Builder(TaskcardSelectActivity.this)
-                    .setTitle("請先選擇地點")
-                    .setAdapter(adAttachmentList, new DialogInterface.OnClickListener() {
+                    .setTitle("選擇附件")
+                    .setAdapter(new SpinnerColorAdapter(TaskcardSelectActivity.this,attachment_be_set), new DialogInterface.OnClickListener() {
 
                         @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override

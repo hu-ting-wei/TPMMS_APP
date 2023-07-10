@@ -23,4 +23,5 @@
     <color name="red">#ffd6d6</color>
     <color name="raw_light">#e8ebf5</color>
     <color name="raw_dark">#cdd4ea</color>
+    <color name="spinner_dark">#F5F5F5</color>
 </resources>
