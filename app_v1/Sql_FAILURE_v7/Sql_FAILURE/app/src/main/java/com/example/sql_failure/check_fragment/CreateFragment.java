@@ -706,7 +706,7 @@ public class CreateFragment extends Fragment {
                     content_et[editText_set][i].setHeight(100);
                     content_et[editText_set][i].setGravity(Gravity.CENTER_VERTICAL);
                     content_et[editText_set][i].setBackgroundResource(R.drawable.radiobtn_unchecked);
-                    content_et[editText_set][i].setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+                    content_et[editText_set][i].setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
                     content_et[editText_set][i].setId(id);//設定id,類型以獲取結果
                     type_record.add("e");
 
@@ -726,28 +726,27 @@ public class CreateFragment extends Fragment {
 
                     String[] et_range=check_set.get(i*4+3).split(",");
 
-                    float et_min=-1;
-                    float et_max=-1;
-                    float et_min_eq=-1;
-                    float et_max_eq=-1;
+                    String et_min=null;
+                    String et_max=null;
+                    String et_min_eq=null;
+                    String et_max_eq=null;
+
 
                     for (int o=0;o<et_range.length;o++){
                         if (et_range[o].charAt(1)=='<' && et_range[o].charAt(2)=='='){
-                            et_max_eq=Float.parseFloat(et_range[o].substring(3));
+                            et_max_eq=et_range[o].substring(3);
                         } else if (et_range[o].charAt(1)=='>' && et_range[o].charAt(2)=='=') {
-                            et_min_eq=Float.parseFloat(et_range[o].substring(3));
+                            et_min_eq=et_range[o].substring(3);
                         } else if (et_range[o].charAt(1)=='<' && et_range[o].charAt(2)!='=') {
-                            et_max=Float.parseFloat(et_range[o].substring(2));
+                            et_max=et_range[o].substring(2);
                         } else if (et_range[o].charAt(1)=='>' && et_range[o].charAt(2)!='=') {
-                            et_min=Float.parseFloat(et_range[o].substring(2));
+                            et_min=et_range[o].substring(2);
                         }
                     }
+                    String[] rangeCheck={et_min_eq, et_min, et_max_eq, et_max, null};
 
 
-                    float finalEt_max = et_max;
-                    float finalEt_max_eq = et_max_eq;
-                    float finalEt_min = et_min;
-                    float finalEt_min_eq = et_min_eq;
+
                     content_et[editText_set][i].addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -778,13 +777,16 @@ public class CreateFragment extends Fragment {
                             Editable text= et.getText();
                             db_result.get(current_set).set(current_item, String.valueOf(text));
 
-                            if(text.toString().isEmpty()){
+
+                            if(text.toString().isEmpty() || String.valueOf(text).equals("-") || String.valueOf(text).equals("+")){
                                 et.setBackgroundResource(R.drawable.radiobtn_unchecked);
                                 db_result.get(current_set).set(current_item, null);
                             }
                             else {
-                                float et_value=Float.parseFloat(String.valueOf(text));
-                                float[] rangeCheck={finalEt_min_eq, finalEt_min, finalEt_max_eq, finalEt_max,et_value};
+
+
+                                String et_value=String.valueOf(text);
+                                rangeCheck[4]=et_value;
 
                                 if(RangeCheck(rangeCheck)){
                                     et.setBackgroundResource(R.drawable.radiobtn_pass);
@@ -796,12 +798,11 @@ public class CreateFragment extends Fragment {
                             int int_result=0;//對應radio button位置(合格0、異常1)
                             String string_result = null;//對應到要寫入結果的值
                             for (int c=1;c<element_IDs.get(current_set).size()-1;c++){
-                                float et_value=-1;
-                                if(db_result.get(current_set).get(c)!=null){
-                                    et_value=Float.parseFloat(String.valueOf(db_result.get(current_set).get(c)));
-                                }
+                                String et_value=String.valueOf(db_result.get(current_set).get(c));
 
-                                float[] rangeCheck={finalEt_min_eq, finalEt_min, finalEt_max_eq, finalEt_max,et_value};
+                                rangeCheck[4]=et_value;
+
+
                                 if(db_result.get(current_set).get(c)==null){
                                     return;
                                 }
@@ -879,13 +880,13 @@ public class CreateFragment extends Fragment {
         }
         return AryResult;
     }
-    private Boolean RangeCheck(float[] ff){
-        if (ff[4]==-1 ) return false;
-        if (ff[0]!=-1 && ff[4]<ff[0]) return false;
-        if (ff[1]!=-1 && ff[4]<=ff[1]) return false;
-        if (ff[2]!=-1 && ff[4]>ff[2]) return false;
-        if (ff[3]!=-1 && ff[4]>=ff[3]) return false;
-        if (ff[0]==-1 && ff[1]==-1 && ff[2]==-1 && ff[3]==-1) return false;
+    private Boolean RangeCheck(String[] ff){
+        if (ff[4]==null ) return false;
+        if (ff[0]!=null && Float.parseFloat(ff[4])<Float.parseFloat(ff[0])) return false;
+        if (ff[1]!=null && Float.parseFloat(ff[4])<=Float.parseFloat(ff[1])) return false;
+        if (ff[2]!=null && Float.parseFloat(ff[4])>Float.parseFloat(ff[2])) return false;
+        if (ff[3]!=null && Float.parseFloat(ff[4])>=Float.parseFloat(ff[3])) return false;
+        if (ff[0]==null && ff[1]==null && ff[2]==null && ff[3]==null) return false;
         return true;
     }
 
