@@ -37,7 +37,7 @@ public class HomeFragment extends Fragment {
     private TextView tvFragCheck;
     private String taskcard_name;
     private String taskcard_attach_pkey;
-    public static String PMID;
+    private static String PMID;
     public static String Room;
     private String[] room;
     private String postMod;
@@ -196,10 +196,13 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onCheckedChanged(RadioGroup radioGroup, int i) {
 
-                        ConfirmPageChange(new CreateBFragment());
+                        if (click) ConfirmPageChange(new CreateBFragment());
 
                     }
                 });
+
+
+                replaceFragment(new CreateBFragment());
 
 
                 break;

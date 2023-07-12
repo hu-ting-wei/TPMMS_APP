@@ -250,8 +250,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             }
             else{   //更新資料庫
                 String SQL_command="UPDATE " + TBname +
-                                    " SET " + "type='" + taskcard_type +
-                                            "',weather='" + weather + "',temperature='" + temperature +
+                                    " SET " + "weather='" + weather + "',temperature='" + temperature +
                                             "',humidity='" + humidity + "',WO='" + wo +
                                             "',WPS='" + responsible + "',workers='" + worker + "'" +
                                     " WHERE PMID='" + edit_PMID + "'";
