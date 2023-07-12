@@ -161,6 +161,22 @@ public class CreateCFragment extends Fragment {
             case "b":
                 room=HomeFragment.Room;
                 break;
+            case "c":
+                String[] Room_set=HomeFragment.Room.split(",");
+                room=Room_set[0];
+                switch (Room_set[1]){
+                    case "10":
+                        taskcard_attach_pkey=taskcard_attach_pkey+"-F1";
+                        break;
+                    case "12":
+                        taskcard_attach_pkey=taskcard_attach_pkey+"-F2";
+                        break;
+                    case "11":
+                        taskcard_attach_pkey=taskcard_attach_pkey+"-F3";
+                        break;
+                }
+
+                break;
         }
 
 
