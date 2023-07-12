@@ -239,7 +239,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
                 status_result.add(checked_date);
                 status_result.add(baseList[basePos]);//非正規
 
-                compDBHper.set(TBname,null,status_result,null);
+                compDBHper.set(TBname,null,null,status_result,null);
                 edit_PMID=PMID;
             }
             else{   //更新資料庫

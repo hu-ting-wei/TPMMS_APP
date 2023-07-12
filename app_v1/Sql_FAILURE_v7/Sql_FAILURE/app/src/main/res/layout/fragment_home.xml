@@ -87,49 +87,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ScrollView
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:id="@+id/hlbutton"
+                <RadioGroup
+                    android:id="@+id/rgRoom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="15dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"
                     android:orientation="horizontal">
+                </RadioGroup>
 
-                    <RadioGroup
-                        android:id="@+id/rgRoom"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginBottom="15dp"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/radioButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="80dp"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginTop="10dp"
-                            android:layout_marginRight="5dp"
-                            android:layout_weight="1"
-                            android:background="@color/station_blue"
-                            android:button="@android:color/transparent"
-                            android:gravity="center"
-                            android:text="全部"
-                            android:textColor="@color/black"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
-                    </RadioGroup>
-
-
-                </LinearLayout>
-
-            </ScrollView>
+            </HorizontalScrollView>
 
             <FrameLayout
                 android:id="@+id/frameLayout5"

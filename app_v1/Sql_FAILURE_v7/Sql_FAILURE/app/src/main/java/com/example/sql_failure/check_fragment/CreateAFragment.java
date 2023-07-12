@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-public class CreateFragment extends Fragment {
+public class CreateAFragment extends Fragment {
     private TextView tvFragCheck;
     private String taskcard_attach_pkey;
     private static String PMID;
@@ -83,7 +83,7 @@ public class CreateFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public CreateFragment() {
+    public CreateAFragment() {
         // Required empty public constructor
     }
 
@@ -96,8 +96,8 @@ public class CreateFragment extends Fragment {
      * @return A new instance of fragment HomeFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CreateFragment newInstance(String param1, String param2) {
-        CreateFragment fragment = new CreateFragment();
+    public static CreateAFragment newInstance(String param1, String param2) {
+        CreateAFragment fragment = new CreateAFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -138,7 +138,7 @@ public class CreateFragment extends Fragment {
             throw new Error(e.toString());
         }
         // Inflate the layout for this fragment
-        myView=inflater.inflate(R.layout.fragment_creat, container, false);
+        myView=inflater.inflate(R.layout.fragment_create, container, false);
 
 
         try {
@@ -864,7 +864,7 @@ public class CreateFragment extends Fragment {
         //儲存時將原有資料刪除，重寫入一次
         String sql="DELETE FROM checked_result WHERE PMID='" + PMID + "'";
         compDBHper.delete_update(sql);
-        compDBHper.set("checked_result",PMID,result_dim1,taskcard_attach_item_pkey_1);
+        compDBHper.set("checked_result",PMID,null,result_dim1,taskcard_attach_item_pkey_1);
     }
     /********工具*********/
     //資料庫資料處理

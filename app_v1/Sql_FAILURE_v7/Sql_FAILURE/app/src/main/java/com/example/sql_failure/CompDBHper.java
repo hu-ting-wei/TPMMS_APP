@@ -112,7 +112,7 @@ public class CompDBHper extends SQLiteOpenHelper {
         return recAry;
     }
     //寫入
-    public void set(String TBname,String PMID,ArrayList<String> result,ArrayList<String> attachment){
+    public void set(String TBname,String PMID,String Room,ArrayList<String> result,ArrayList<String> attachment){
         SQLiteDatabase db=getWritableDatabase();
         String sql_command = "";
         switch (TBname){
@@ -120,10 +120,10 @@ public class CompDBHper extends SQLiteOpenHelper {
                 String tmp1="INSERT INTO checked_result VALUES ";
                 for(int i=0;i< result.size();i++){
                     if(i== result.size()-1){
-                        tmp1+="(" + PMID + ",'" + null + "','" + attachment.get(i) + "','" + null + "','" + result.get(i) + "')";
+                        tmp1+="(" + PMID + ",'" + Room + "','" + attachment.get(i) + "','" + null + "','" + result.get(i) + "')";
                         break;
                     }
-                    tmp1+="(" + PMID + ",'" + null + "','" + attachment.get(i) + "','" + null + "','" + result.get(i) + "'),";
+                    tmp1+="(" + PMID + ",'" + Room + "','" + attachment.get(i) + "','" + null + "','" + result.get(i) + "'),";
                 }
                 sql_command=tmp1;
                 break;
