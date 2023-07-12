@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class TaskcardStatusActivity extends AppCompatActivity {
-    private String taskcard_name,postMod,checked_date,selected_taskcard,selected_location,selected_attachment;
+    private String taskcard_name,postMod,checked_date,selected_taskcard,selected_location,selected_attachment,taskcard_type;
     private Toolbar statusToolbar;
     private TextView tvStatusTaskcard,tvCheckedDate,tvDays;
     private EditText etWeather,etTemperature,etHumidity,etWo,etResponsible,etWorker,etCompany;
@@ -85,6 +85,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             selected_taskcard=getIntent().getExtras().getString("selected_taskcard");
             selected_location=getIntent().getExtras().getString("selected_location");
             selected_attachment=getIntent().getExtras().getString("selected_attachment");
+            taskcard_type=getIntent().getExtras().getString("taskcard_type");
             //下一步按鈕判斷
             btStatusNext.setBackgroundResource(R.color.gray);
             btStatusNext.setText("請填寫相關資料");
@@ -203,7 +204,6 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             String wo=etWo.getText().toString();
             String responsible=etResponsible.getText().toString();
             String worker=etWorker.getText().toString();
-            String type="a";
 
             if (postMod.equals("new")){ //寫入資料庫
                 String PMID;
@@ -220,14 +220,20 @@ public class TaskcardStatusActivity extends AppCompatActivity {
                 }
 
 
-                String taskcard_attach_pkey=selected_taskcard + "-" + selected_attachment;
+                String taskcard_attach_pkey=new String();
+                if (taskcard_type.equals("c")){
+                    taskcard_attach_pkey=selected_taskcard;//c類型不用選附件12
+                }
+                else {
+                    taskcard_attach_pkey=selected_taskcard + "-" + selected_attachment;
+                }
 
                 String[] baseList={"LUDP","TPEP","WUDP","YULP","ZUDP"};
 
                 ArrayList<String> status_result=new ArrayList<>();
                 status_result.add(PMID);
                 status_result.add(taskcard_attach_pkey);
-                status_result.add(type);
+                status_result.add(taskcard_type);
                 status_result.add(selected_location);
                 status_result.add(weather);
                 status_result.add(temperature);
@@ -244,7 +250,7 @@ public class TaskcardStatusActivity extends AppCompatActivity {
             }
             else{   //更新資料庫
                 String SQL_command="UPDATE " + TBname +
-                                    " SET " + "type='" + type +
+                                    " SET " + "type='" + taskcard_type +
                                             "',weather='" + weather + "',temperature='" + temperature +
                                             "',humidity='" + humidity + "',WO='" + wo +
                                             "',WPS='" + responsible + "',workers='" + worker + "'" +
