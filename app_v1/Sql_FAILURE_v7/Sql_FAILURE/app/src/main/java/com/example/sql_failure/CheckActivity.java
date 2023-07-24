@@ -34,6 +34,7 @@ public class CheckActivity extends AppCompatActivity {
 
     private static final String DBname="myDB1.db";
     private static final int DBversion=1;
+    private String mod="book";
 
     ActivityCheckBinding binding;
 
@@ -65,6 +66,7 @@ public class CheckActivity extends AppCompatActivity {
         bottomNavigationView.setItemIconTintList(null);
 
         replaceFragment(new HomeFragment());
+        mod="book";
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
 
             switch (item.getItemId()){
@@ -73,9 +75,11 @@ public class CheckActivity extends AppCompatActivity {
                     break;
                 case R.id.bnavBook:
                     replaceFragment(new HomeFragment());
+                    mod="book";
                     break;
                 case R.id.bnavMME:
                     replaceFragment(new MMEFragment());
+                    mod="mme";
                     break;
                 case R.id.bnavStatus:
                     replaceFragment(new StatusFragment());
@@ -109,17 +113,26 @@ public class CheckActivity extends AppCompatActivity {
         String SQL_command="SELECT type,taskcard_attach_pkey,location_equipment_tk FROM " + "check_condition"  + " WHERE PMID=" + getIntent().getExtras().getString("PMID") + "";   //拿取過去紀錄
         recSet=dbHper.get(SQL_command);
         ArrayList<String> history=pre_work();
-        switch (history.get(0)){
-            case "a":
-                CreateAFragment.save();
+        switch (mod){
+            case "book":
+                switch (history.get(0)){
+                    case "a":
+                        CreateAFragment.save();
+                        break;
+                    case "b":
+                        CreateBFragment.save();
+                        break;
+                    case "c":
+                        CreateCFragment.save();
+                        break;
+                }
                 break;
-            case "b":
-                CreateBFragment.save();
-                break;
-            case "c":
-                CreateCFragment.save();
+            case "mme":
+                MMEFragment.save();
                 break;
         }
+
+
     }
     private ArrayList<String> pre_work(){
         int recSet_size=recSet.size();

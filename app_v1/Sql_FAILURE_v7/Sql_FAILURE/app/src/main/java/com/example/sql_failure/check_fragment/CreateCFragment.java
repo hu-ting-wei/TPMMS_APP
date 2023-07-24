@@ -34,11 +34,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class CreateCFragment extends Fragment {
-    private TextView tvFragCheck;
+    //private TextView tvFragCheck;
     private String taskcard_attach_pkey;
     private static String PMID;
     private static String room;
-    private String postMod;
+    //private String postMod;
 
     private LinearLayout vlFather;
 
@@ -122,7 +122,7 @@ public class CreateCFragment extends Fragment {
         ArrayList<String> fromStatus=((CheckActivity)context).toValue();
         //taskcard_name=fromStatus.get(0);
         PMID=fromStatus.get(1);
-        postMod=fromStatus.get(2);
+        //postMod=fromStatus.get(2);
     }
 
     //@RequiresApi(api = Build.VERSION_CODES.M)

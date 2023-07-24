@@ -193,7 +193,7 @@ public class CreateAFragment extends Fragment {
         //以上初始完成
         //初始完成時就先寫入db，以防第一次登載時沒儲存就離開(導致checked_result中無資料提供編輯時查找)
 
-        SQL_command="SELECT data FROM checked_result WHERE PMID='" + PMID + "'";
+        SQL_command="SELECT data FROM checked_result WHERE PMID='" + PMID + "' AND room='null'";
         recSet=compDBHper.get(SQL_command);
 
         if (recSet.size()==0){
@@ -862,7 +862,7 @@ public class CreateAFragment extends Fragment {
             count1+=count2;
         }
         //儲存時將原有資料刪除，重寫入一次
-        String sql="DELETE FROM checked_result WHERE PMID='" + PMID + "'";
+        String sql="DELETE FROM checked_result WHERE PMID='" + PMID + "' AND room='null'";
         compDBHper.delete_update(sql);
         compDBHper.set("checked_result",PMID,null,result_dim1,taskcard_attach_item_pkey_1);
     }
