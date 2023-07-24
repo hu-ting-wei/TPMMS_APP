@@ -578,7 +578,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                     mileage_layout.findViewById(R.id.btIdmileageOK).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            //按下確認鍵，結束里程>起始里程、沒選擇里程不能前往下一步，以上皆於選擇時就同步檢查，所以在這只需檢查tvMileageWarn是否顯示就好
+                            //按下確認鍵，(結束里程>起始里程、沒選擇里程不能前往下一步)，以上皆於選擇時就同步檢查，所以在這只需檢查tvMileageWarn是否顯示就好
                             if (tvMileageWarn.getVisibility()== View.INVISIBLE){
                                 //給過
                                 btLocation.setText(display_mileage[0]);
