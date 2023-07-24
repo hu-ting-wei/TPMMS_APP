@@ -46,6 +46,10 @@ public class TaskcardSelectActivity extends AppCompatActivity {
     private Button btDate,btTaskcard,btLocation,btAttachment;
     private Calendar calendar;
     private DatePickerDialog datePicker;
+    private String main_start_mileage="請選擇";//使用者選擇的起始哩程(主線)
+    private String main_end_mileage="請選擇";//使用者選擇的結束哩程(主線)
+    private AlertDialog mileage_alert = null;//控制mileage alertDialog
+    private AlertDialog.Builder mileage_builder = null;//控制mileage alertDialog
 
     private ArrayList<String> recSet;
     private String SQL_command;
@@ -203,6 +207,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                             btTaskcard.setText(taskcard_list.get(which));
                             selected_taskcard= taskcard_result.get(which*2);//要寫入資料庫的格式(taskcard_pkey)
                             taskcard_name=taskcard_result.get((which*2)+1);
+                            attachment_be_set.clear();//清除前一個選擇地點對應的附件
 
                             //依工作說明書會有 a、b、c 3種類型(location_equipment)會影響到本頁面的配置，在此做判斷並處理
                             SQL_command="SELECT DISTINCT type FROM taskcard_attach_new WHERE taskcard_attach_pkey LIKE '" + selected_taskcard + "%'";
@@ -221,11 +226,23 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                 case "a":
                                     //a類型為預設畫面
                                     //資料處理並加入下拉選單
+                                        //c類型會將附件格消除，需復原
+                                    tvLocation.setText("*地點");
+                                    btLocation.setHint("選擇地點");
+                                    tvAttach.setVisibility(View.VISIBLE);
+                                    btAttachment.setVisibility(View.VISIBLE);
+
                                     LinkedHashSet<String> hashSet = new LinkedHashSet<>(location_result);
                                     location_list = new ArrayList<>(hashSet);//重複的要拿掉
                                     break;
                                 case "b":
                                     //b類型為多選畫面
+                                        //c類型會將附件格消除，需復原
+                                    tvLocation.setText("*地點");
+                                    btLocation.setHint("選擇地點");
+                                    tvAttach.setVisibility(View.VISIBLE);
+                                    btAttachment.setVisibility(View.VISIBLE);
+
                                     ArrayList<String> location_buffer=new ArrayList<>();//暫存處理完
                                     for (int i = 0; i<location_result.size(); i++){
                                         String typeB_location=location_result.get(i).replace("_","    ");
@@ -239,6 +256,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                     btLocation.setHint("選擇里程");
                                     tvAttach.setVisibility(View.INVISIBLE);
                                     btAttachment.setVisibility(View.INVISIBLE);
+                                    selected_attachment="";//c類型無附件
                                     break;
                             }
 
@@ -327,7 +345,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                     }).create().show();
                     break;
                 case "b":
-                    String selected_location[]=new String[location_list.size()];//紀錄多選下拉式選單結果的陣列
+                    String[] selected_location_b =new String[location_list.size()];//紀錄多選下拉式選單結果的陣列
                     new AlertDialog.Builder(TaskcardSelectActivity.this)
                             .setTitle("選擇地點")
                             .setPositiveButton("確定", new DialogInterface.OnClickListener() {
@@ -336,10 +354,10 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                     //顯示選擇結果
                                     ArrayList<String> selected_location_list=new ArrayList<>();//蒐集被選取項目
                                     String display_location = "";
-                                    for (int x=0;x<selected_location.length;x++){
-                                        if(selected_location[x]!=null){
-                                            display_location += selected_location[x]+"\n";
-                                            selected_location_list.add(selected_location[x]);
+                                    for (int x=0;x<selected_location_b.length;x++){
+                                        if(selected_location_b[x]!=null){
+                                            display_location += selected_location_b[x]+"\n";
+                                            selected_location_list.add(selected_location_b[x]);
                                         }
                                     }
                                     if (display_location.length()!=0){
@@ -352,9 +370,18 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                     //多選單確定鍵listener(查找對應attachment)
                                     //收集選擇的項目使用萬用字元(%)查詢，查詢結果為null的話表示所選擇的項目所屬的附件並不同。ex:%52OT1_ATP0%AT2_SSP7%89OT2_SP1%
                                         //把底線裝回去，以利查詢
+                                    StringBuilder b_type_db= new StringBuilder(new String());//b類型寫入db的字串
                                     for (int j=0;j<selected_location_list.size();j++){
                                         selected_location_list.set(j,selected_location_list.get(j).replace("    ","_"));
+
+                                        b_type_db.append(selected_location_list.get(j));
+                                        b_type_db.append(",");
                                     }
+                                    if (b_type_db.length()!=0){
+                                        //去除字尾","
+                                        b_type_db= new StringBuilder(b_type_db.substring(0, b_type_db.length() - 1));
+                                    }
+                                    selected_location= String.valueOf(b_type_db);
                                         //將選擇的項目之間插入萬用字元
                                     StringBuilder location_for_sql= new StringBuilder();
                                     if (selected_location_list.size()==0){
@@ -402,16 +429,17 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialogInterface, int i, boolean b) {
                                     //將點選的地點按照位置放入selected_location
                                     if(b){
-                                        selected_location[i]=location_list.get(i);
+                                        selected_location_b[i]=location_list.get(i);
                                     }
                                     else {
-                                        selected_location[i]=null;
+                                        selected_location_b[i]=null;
                                     }
                                 }
                             }).create().show();
 
                     break;
                 case "c":
+                    attachEnable=true;//c類型無附件，設定為true(保持被忽略)
                     View mileage_layout = getLayoutInflater().inflate(R.layout.taskcard_select_mileage,null);
                     //設定里程spinner的內容
                     String sql_subCommand1="";
@@ -443,39 +471,136 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                     recSet=dbHper.get(SQL_command);
                     ArrayList<String> tk_list=pre_work();//里程範圍
                     //塞入mileage_layout中的spinner
+                    ArrayList<String> tk_default_list;//加入"請選擇"選項
+                    tk_default_list=tk_list;
+                    tk_default_list.add(0,"請選擇");//初始顯示的值，所以之後處理資料需要忽略第0項
+                    ArrayAdapter tk_adapter = new ArrayAdapter(TaskcardSelectActivity.this,R.layout.my_selected_item,tk_default_list);
                     Spinner spnStart=((Spinner) mileage_layout.findViewById(R.id.spnIdMainStartMile));
-                    spnStart.setAdapter(new SpinnerColorAdapter(TaskcardSelectActivity.this,tk_list));
+                    tk_adapter.setDropDownViewResource(R.layout.my_spinner_dropdown_item);
+                    spnStart.setAdapter(tk_adapter);
+
+                    TextView tvMileageWarn=mileage_layout.findViewById(R.id.tvIdMileageWarn);//警告textview
+                    final String[] display_mileage = {new String()};//顯示tk的格式
+                    final String[] db_mileage = {new String()};//寫入db tk的格式
+
+                    spnStart.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            main_start_mileage= (String) spnStart.getSelectedItem();
+                            if (main_start_mileage.equals("請選擇") || main_end_mileage.equals("請選擇")){
+                                if (main_start_mileage.equals("請選擇") && main_end_mileage.equals("請選擇")){
+                                    display_mileage[0]="";//清除顯示資料
+                                    tvMileageWarn.setVisibility(View.INVISIBLE);//警告消除
+                                }
+                                else {
+                                    tvMileageWarn.setVisibility(View.VISIBLE);//警告出現
+                                }
+                                locationEnable=false;
+                            }
+                            else {
+                                if (Float.parseFloat(main_start_mileage)<=Float.parseFloat(main_end_mileage)){
+                                    //正確格式
+                                    if (main_start_mileage.equals(main_end_mileage)){
+                                        display_mileage[0] ="TK" + main_start_mileage;
+                                        db_mileage[0] =main_start_mileage;
+                                    }
+                                    else {
+                                        display_mileage[0] ="TK" + main_start_mileage + "~" + "TK" + main_end_mileage;
+                                        db_mileage[0] =main_start_mileage + "," + main_end_mileage;
+                                    }
+                                    tvMileageWarn.setVisibility(View.INVISIBLE);//警告消除
+                                    locationEnable=true;
+                                }
+                                else {
+                                    //錯誤格式
+                                    tvMileageWarn.setVisibility(View.VISIBLE);//警告出現
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+
+                        }
+                    });
 
                     Spinner spnEnd=((Spinner) mileage_layout.findViewById(R.id.spnIdMainEndMile));
-                    ArrayAdapter adapter = new ArrayAdapter(TaskcardSelectActivity.this,android.R.layout.simple_spinner_item,tk_list);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spnEnd.setAdapter(adapter);
-                    try {
-                        Field popup = Spinner.class.getDeclaredField("mPopup");
-                        popup.setAccessible(true);
-
-                        // Get private mPopup member variable and try cast to ListPopupWindow
-                        android.widget.ListPopupWindow popupWindow = (android.widget.ListPopupWindow) popup.get(spnEnd);
-
-                        // Set popupWindow height to 500px
-                        assert popupWindow != null;
-                        popupWindow.setHeight(500);
-                    }
-                    catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
-                        // silently fail...
-                    }
-
-                    new AlertDialog.Builder(TaskcardSelectActivity.this)
-                            .setTitle("選擇里程")
-                            .setView(mileage_layout)
-                            .setPositiveButton("確定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-
+                    tk_adapter.setDropDownViewResource(R.layout.my_spinner_dropdown_item);
+                    spnEnd.setAdapter(tk_adapter);
+                    spnEnd.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                            main_end_mileage= (String) spnEnd.getSelectedItem();
+                            if (main_start_mileage.equals("請選擇") || main_end_mileage.equals("請選擇")){
+                                if (main_start_mileage.equals("請選擇") && main_end_mileage.equals("請選擇")){
+                                    display_mileage[0]="";//清除顯示窗
+                                    tvMileageWarn.setVisibility(View.INVISIBLE);//警告消除
                                 }
-                            })
+                                else {
+                                    tvMileageWarn.setVisibility(View.VISIBLE);//警告出現
+                                }
+                                locationEnable=false;
+                            }
+                            else {
+                                if (Float.parseFloat(main_start_mileage)<=Float.parseFloat(main_end_mileage)){
+                                    //正確格式
+                                    if (main_start_mileage.equals(main_end_mileage)){
+                                        display_mileage[0] ="TK" + main_start_mileage;
+                                        db_mileage[0] =main_start_mileage;
+                                    }
+                                    else {
+                                        display_mileage[0] ="TK" + main_start_mileage + "~" + "TK" + main_end_mileage;
+                                        db_mileage[0] =main_start_mileage + "," + main_end_mileage;
+                                    }
+                                    tvMileageWarn.setVisibility(View.INVISIBLE);//警告消除
+                                    locationEnable=true;
+                                }
+                                else {
+                                    //錯誤格式
+                                    tvMileageWarn.setVisibility(View.VISIBLE);//警告出現
+                                }
+                            }
+                        }
 
-                            .create().show();
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+
+                        }
+                    });
+
+                    //里程選擇的彈出視窗控制
+                    mileage_builder=new AlertDialog.Builder(TaskcardSelectActivity.this);
+                    mileage_builder.setTitle("選擇里程");
+                    mileage_builder.setView(mileage_layout);
+                    mileage_builder.setCancelable(false);
+                    mileage_alert=mileage_builder.create();
+                    mileage_alert.show();
+                    mileage_layout.findViewById(R.id.btIdmileageOK).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            //按下確認鍵，(結束里程>起始里程、沒選擇里程不能前往下一步)，以上皆於選擇時就同步檢查，所以在這只需檢查tvMileageWarn是否顯示就好
+                            if (tvMileageWarn.getVisibility()== View.INVISIBLE){
+                                //給過
+                                btLocation.setText(display_mileage[0]);
+                                selected_location=db_mileage[0];//c類型db寫入哩程資料會被寫在地點的欄位
+                                mileage_alert.dismiss();
+
+
+                                if(dateEnable&taskcardEnable&locationEnable&attachEnable){
+                                    btTaskcardNext.setBackgroundResource(R.color.theme_teal);
+                                    btTaskcardNext.setText("下一步");
+                                    btTaskcardNext.setTextColor(Color.parseColor("#ffffff"));
+                                    btTaskcardNext.setEnabled(true);
+                                }
+                                else{
+                                    btTaskcardNext.setBackgroundResource(R.color.gray);
+                                    btTaskcardNext.setText("請填寫相關資料");
+                                    btTaskcardNext.setTextColor(Color.parseColor("#7f7f7f"));
+                                    btTaskcardNext.setEnabled(false);
+                                }
+                            }
+                        }
+                    });
                     break;
             }
         }
@@ -493,6 +618,8 @@ public class TaskcardSelectActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             btAttachment.setText(attachment_be_set.get(which));
                             selected_attachment= attachment_be_set.get(which);//要寫入資料庫的格式
+                            String[] attach=selected_attachment.split("\\(");//將附件後面的括號名稱去除
+                            selected_attachment=attach[0];
                             dialog.dismiss();
 
                             if(btAttachment.getText()!=null){
@@ -532,6 +659,7 @@ public class TaskcardSelectActivity extends AppCompatActivity {
             Bundle bundle=new Bundle();
             bundle.putString("basePos", String.valueOf(basePos));
             bundle.putString("postMod",getIntent().getExtras().getString("postMod"));
+            bundle.putString("taskcard_type",taskcard_type);
             bundle.putString("checked_date",checked_date);
             bundle.putString("selected_taskcard",selected_taskcard);
             bundle.putString("taskcard_name",taskcard_name);

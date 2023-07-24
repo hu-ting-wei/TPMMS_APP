@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,6 +23,17 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:text="TextView"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/tvIdMileageWarn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/taskcard_mileage_warn"
+            android:textColor="#FF0000"
+            android:textSize="20sp"
+            android:textStyle="bold"
             android:visibility="invisible" />
 
         <TextView
@@ -45,13 +57,15 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/taskcard_mileage_start"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
 
             <Spinner
                 android:id="@+id/spnIdMainStartMile"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+
+                android:layout_height="?attr/dropdownListPreferredItemHeight"
                 android:layout_weight="1"
+                android:popupBackground="@drawable/spinner_popup_bg"
                 android:textAlignment="center" />
 
             <TextView
@@ -61,13 +75,14 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/taskcard_mileage_end"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
 
             <Spinner
                 android:id="@+id/spnIdMainEndMile"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="?attr/dropdownListPreferredItemHeight"
                 android:layout_weight="1"
+                android:popupBackground="@drawable/spinner_popup_bg"
                 android:textAlignment="center" />
         </LinearLayout>
 
@@ -92,7 +107,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/taskcard_mileage_start"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
 
             <Spinner
                 android:id="@+id/spnIdSubStartMile"
@@ -108,7 +123,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/taskcard_mileage_end"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
 
             <Spinner
                 android:id="@+id/spnIdSubEndMile"
@@ -116,6 +131,34 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:textAlignment="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btIdmileageOK"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="#00000000"
+                android:gravity="center_vertical|end"
+                android:text="確定"
+                android:textColor="@color/more_info"
+                android:textSize="18sp" />
         </LinearLayout>
 
     </LinearLayout>

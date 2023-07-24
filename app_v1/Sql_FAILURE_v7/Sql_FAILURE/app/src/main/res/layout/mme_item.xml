@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vlIdChild"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvIdTool"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:text="工具"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="型號:"
+            android:textSize="20sp" />
+
+        <Spinner
+            android:id="@+id/spnIdLabel"
+            android:layout_width="0dp"
+
+            android:layout_height="?attr/dropdownListPreferredItemHeight"
+            android:layout_weight="1"
+            android:popupBackground="@drawable/spinner_popup_bg"
+            android:textAlignment="center" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="編號:"
+            android:textSize="20sp" />
+
+        <Spinner
+            android:id="@+id/spnIdCode"
+            android:layout_width="0dp"
+            android:layout_height="?attr/dropdownListPreferredItemHeight"
+            android:layout_weight="1"
+            android:popupBackground="@drawable/spinner_popup_bg"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+</LinearLayout>

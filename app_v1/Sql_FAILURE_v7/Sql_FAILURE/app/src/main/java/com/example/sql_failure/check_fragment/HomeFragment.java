@@ -1,43 +1,26 @@
 package com.example.sql_failure.check_fragment;
 
-import static android.content.Intent.getIntent;
-
 import android.content.Context;
-import android.os.Build;
+import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
-import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.text.Editable;
-import android.text.InputType;
-import android.text.SpannableString;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Space;
 import android.widget.TextView;
 
 import com.example.sql_failure.CheckActivity;
 import com.example.sql_failure.CompDBHper;
 import com.example.sql_failure.R;
-import com.example.sql_failure.post_activities.EditActivity;
-import com.facebook.stetho.Stetho;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +36,8 @@ public class HomeFragment extends Fragment {
     private String taskcard_name;
     private String taskcard_attach_pkey;
     private static String PMID;
+    public static String Room;
+    private String[] room;
     private String postMod;
 
 
@@ -61,13 +46,16 @@ public class HomeFragment extends Fragment {
     private static final int DBversion=1;
     private static final String TBname="check_item";
     private static final int itemID=52;
+    private int checkID =0;
+    private String Type;
     //CompDBHper compDBHper=new CompDBHper(getActivity(),DBname,null,DBversion);
     static CompDBHper compDBHper;
     private String SQL_command;
     private ArrayList<String> recSet;//包含#的內容
+    private ArrayList<String> location_in_range;
 
     /*****/
-    private int id=1;//給各元件的id，從1開始
+    private boolean click=true;//給各元件的id，從1開始
     private View myView;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -124,8 +112,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //監看DB內容
-        Stetho.initializeWithDefaults(getContext());
+
         //取得檔案位置
         try {
             InputStream am=getContext().getAssets().open(DBname);
@@ -151,21 +138,122 @@ public class HomeFragment extends Fragment {
         recSet=compDBHper.get(SQL_command);
         ArrayList<String> history=pre_work();
         RadioGroup rgRoom=((RadioGroup) myView.findViewById(R.id.rgRoom));
-        switch (history.get(0)){
+        Type=history.get(0);
+
+        switch (Type){
             case "a":
-                taskcard_attach_pkey=history.get(1);
+                room= new String[]{"全部","1","2","3"};
+                for (int i = 0; i < room.length; i++) {
+                    RadioButton btRadio_room=new RadioButton(getActivity());
+                    LinearLayout.LayoutParams layoutset=new RadioGroup.LayoutParams(450, 150);
+                    layoutset.setMargins(5, 0, 5, 0);
+                    btRadio_room.setLayoutParams(layoutset);
+                    btRadio_room.setBackgroundResource(R.color.station_blue);
+                    btRadio_room.setGravity(android.view.Gravity.CENTER);
+                    btRadio_room.setTextSize(22);
+                    btRadio_room.setText(room[i]);
+                    btRadio_room.setTextColor(getResources().getColor(R.color.black));
+                    btRadio_room.setTypeface(null, Typeface.BOLD);
+                    btRadio_room.setId(i);
+
+                    rgRoom.addView(btRadio_room);
+                }
+                rgRoom.check(checkID);
+                Room=null;
+                rgRoom.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                        if (click) ConfirmPageChange(new CreateAFragment());
+                    }
+                });
+
+
+                replaceFragment(new CreateAFragment());
 
                 break;
             case "b":
+                room=history.get(2).split(",");
+                for (int i = 0; i < room.length; i++) {
+                    RadioButton btRadio_room=new RadioButton(getActivity());
+                    LinearLayout.LayoutParams layoutset=new RadioGroup.LayoutParams(450, 150);
+                    layoutset.setMargins(5, 0, 5, 0);
+                    btRadio_room.setLayoutParams(layoutset);
+                    btRadio_room.setBackgroundResource(R.color.station_blue);
+                    btRadio_room.setGravity(android.view.Gravity.CENTER);
+                    btRadio_room.setTextSize(22);
+                    btRadio_room.setText(room[i]);
+                    btRadio_room.setTextColor(getResources().getColor(R.color.black));
+                    btRadio_room.setTypeface(null, Typeface.BOLD);
+                    btRadio_room.setId(i);
+
+                    rgRoom.addView(btRadio_room);
+                }
+
+                rgRoom.check(checkID);
+                Room=room[0];
+
+
+                rgRoom.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
+
+                        if (click) ConfirmPageChange(new CreateBFragment());
+
+                    }
+                });
+
+
+                replaceFragment(new CreateBFragment());
+
 
                 break;
             case "c":
+                String[] location=history.get(2).split(",");
+                String location_start=location[0];
+                String location_end=location[0];
+                if (location.length!=1){
+                    location_end=location[1];
+                }
+                SQL_command="SELECT tk_real,equipment_type,equipment_id FROM wayside_equipment_new WHERE equipment_type>=10 AND equipment_type<=12 AND tk_real>='" + location_start +"' AND tk_real<='" + location_end + "'";   //拿取過去紀錄
+                recSet=compDBHper.get(SQL_command);
+                location_in_range=pre_work();
+
+
+
+                for (int i = 0; i < location_in_range.size()/3; i++) {
+                    RadioButton btRadio_room=new RadioButton(getActivity());
+                    LinearLayout.LayoutParams layoutset=new RadioGroup.LayoutParams(450, 150);
+                    layoutset.setMargins(5, 0, 5, 0);
+                    btRadio_room.setLayoutParams(layoutset);
+                    btRadio_room.setBackgroundResource(R.color.station_blue);
+                    btRadio_room.setGravity(android.view.Gravity.CENTER);
+                    btRadio_room.setTextSize(22);
+                    btRadio_room.setText(location_in_range.get(i*3+2));
+                    btRadio_room.setTextColor(getResources().getColor(R.color.black));
+                    btRadio_room.setTypeface(null, Typeface.BOLD);
+                    btRadio_room.setId(i);
+
+                    rgRoom.addView(btRadio_room);
+                }
+                rgRoom.check(checkID);
+                Room=location_in_range.get(checkID*3)+","+location_in_range.get(checkID*3+1);
+
+                rgRoom.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
+
+                        if (click) ConfirmPageChange(new CreateCFragment());
+
+                    }
+                });
+                replaceFragment(new CreateCFragment());
 
                 break;
 
         }
 
-        replaceFragment(new CreateFragment());
+
+
 
 
 
@@ -194,6 +282,80 @@ public class HomeFragment extends Fragment {
         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout5,fragment);
         fragmentTransaction.commit();
+    }
+
+    private void ConfirmPageChange(Fragment fragment){//頁面切換確認
+        RadioGroup rgRoom=((RadioGroup) myView.findViewById(R.id.rgRoom));
+        AlertDialog.Builder ad_leave=new AlertDialog.Builder(getActivity());
+        ad_leave.setTitle("離開");
+        ad_leave.setMessage("是否要切換頁面?");
+        ad_leave.setPositiveButton("是", new DialogInterface.OnClickListener() {//退出按鈕
+            public void onClick(DialogInterface dialog, int i) {
+                // TODO Auto-generated method stub
+                AlertDialog.Builder ad_save=new AlertDialog.Builder(getActivity());
+                ad_save.setTitle("存檔");
+                ad_save.setMessage("是否要儲存尚未存檔之更動?");
+                ad_save.setPositiveButton("是", new DialogInterface.OnClickListener() {//退出按鈕
+                    public void onClick(DialogInterface dialog, int i) {
+                        // TODO Auto-generated method stub
+                        checkID =rgRoom.getCheckedRadioButtonId();
+                        switch (Type){
+                            case "a":
+                                Room=null;
+                                break;
+                            case "b":
+                                Room=room[checkID];
+                                break;
+                            case "c":
+                                Room=location_in_range.get(checkID*3)+","+location_in_range.get(checkID*3+1);
+                                break;
+                        }
+                        SaveData();
+                        replaceFragment(fragment);
+
+                    }
+                });
+                ad_save.setNegativeButton("否",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+                        checkID =rgRoom.getCheckedRadioButtonId();
+                        switch (Type){
+                            case "a":
+                                Room=null;
+                                break;
+                            case "b":
+                                Room=room[checkID];
+                                break;
+                            case "c":
+                                Room=location_in_range.get(checkID*3)+","+location_in_range.get(checkID*3+1);
+                                break;
+                        }
+                        replaceFragment(fragment);
+                    }
+                });
+                ad_save.show();//顯示對話框
+            }
+        });
+        ad_leave.setNegativeButton("否",new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int i) {
+                click=false;
+                rgRoom.check(checkID);
+                click=true;
+            }
+        });
+        ad_leave.show();//顯示對話框
+    }
+    private void SaveData(){
+        switch (Type){
+            case "a":
+                CreateAFragment.save();
+                break;
+            case "b":
+                CreateBFragment.save();
+                break;
+            case "c":
+                CreateCFragment.save();
+                break;
+        }
     }
 
 

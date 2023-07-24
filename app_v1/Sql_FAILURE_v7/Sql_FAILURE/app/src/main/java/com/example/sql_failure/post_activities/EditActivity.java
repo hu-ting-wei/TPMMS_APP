@@ -64,15 +64,67 @@ public class EditActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         btEditLogin=((Button) findViewById(R.id.btIdEditLogin));
-        //list中一個元素須的格式(6項):[sss,變電站半年檢查,F1(台北車站...),2022/1/19,BSS1,張先生]，前三項(top_three_arr)於spinner_system查找，後三項(last_three_arr)於check_condition查找
+        //list中一個元素須的格式(6項):[sss,變電站半年檢查,F1(台北車站...),2022/1/19,BSS1,張先生]，前三項(top_three_arr)於taskcard_new、taskcard_attach_new查找，後三項(last_three_arr)於check_condition查找
         //另一個額外元素是要拿取PMID，當使用者要編輯或刪除時使用PMID
-        //查找流程:1.必須先從check_condition中找出taskcard_attach_pkey，並且拆開成taskcard_pkey與附件名稱(ex:F10)兩項
-        //      2.透過拆分的兩筆資料回spinner_system查找剩餘資料
-        //      3.組裝附件名稱與field17，ex:F1 and 苗栗車站,雲林車站,彰化車站,into F1(苗栗車站,雲林車站,彰化車站)
+        //查找流程:
+        //      *需先找出工作說明書的type(c類型在DB中無附件資料，需與a、b類型分開處理)
+        //      1.先從check_condition中找出taskcard_attach_pkey，並且拆開成taskcard_pkey與附件名稱(ex:F10)兩項
+        //      2.透過拆分的兩筆資料回taskcard_new、taskcard_attach_new查找剩餘資料
+        //      3.組裝attach與remark，ex:F1 and 苗栗車站,雲林車站,彰化車站,into F1(苗栗車站,雲林車站,彰化車站)
         //      4.從check_condition中找出location_equipment_tk,WPS,create_date
         //      5.額外拿取PMID
+
         //1.
-        SQL_command="SELECT taskcard_attach_pkey FROM check_condition";
+        SQL_command="SELECT taskcard_attach_pkey,type FROM check_condition";
+        recSet=dbHper.get(SQL_command);
+        ArrayList<String> taskcard_attach_pkey_type_Array=pre_work();//找出taskcard_attach_pkey及type
+
+        ArrayList<String> attach_and_pkey=new ArrayList<>();//存放拆成兩項的ArrayList{附件名稱,taskcard_pkey,...}
+        for (int i=0;i<taskcard_attach_pkey_type_Array.size();i+=2){
+            if (taskcard_attach_pkey_type_Array.get(i+1).equals("c")){
+                //c類型在DB中無附件資料
+                attach_and_pkey.add("no_attach");
+                attach_and_pkey.add(taskcard_attach_pkey_type_Array.get(i));
+            }
+            else {
+                //a、b類型
+                String mString=taskcard_attach_pkey_type_Array.get(i);//taskcard_attach_pkey
+                String attach_name=mString.substring(mString.length()-5);//取後5位，確保'-'有被加入，以利split("-")
+                String[] attach_name_without_minus=attach_name.split("-");//把'-'拆開，並擷取附件名稱
+                attach_and_pkey.add(attach_name_without_minus[1]);
+
+                String[] pkey_name=mString.split("-" + attach_name_without_minus[1]);//把剛剛擷取的附件名稱透過split過濾出taskcard_pkey
+                attach_and_pkey.add(pkey_name[0]);
+            }
+        }
+        //2.3.
+        ArrayList<String> top_three_arr=new ArrayList<>();//前三項
+        for (int j=0;j<attach_and_pkey.size();j+=2){
+            //從taskcard_new取得說明書登載類型(taskcard_sys)、工作說明書名稱(taskcard_name)
+            SQL_command="SELECT taskcard_sys,taskcard_name FROM taskcard_new WHERE taskcard_pkey='" + attach_and_pkey.get(j+1) + "'";
+            recSet=dbHper.get(SQL_command);
+            ArrayList<String> taskcard_sys_name=pre_work();
+            if (taskcard_sys_name.get(0).equals("WAYSIDE")){
+                taskcard_sys_name.set(0,"WAY");
+            }
+            top_three_arr.add(taskcard_sys_name.get(0));//top_three_arr第一項
+            top_three_arr.add(taskcard_sys_name.get(1));//top_three_arr第二項
+            //從taskcard_attach_new取得附件
+            if ( attach_and_pkey.get(j).equals("no_attach")){
+                //c類型無附件資料
+                top_three_arr.add("");//top_three_arr第三項(c)
+            }
+            else {
+                SQL_command="SELECT attach,remark FROM taskcard_attach_new WHERE taskcard_attach_pkey LIKE '" + attach_and_pkey.get(j+1) + "%' AND attach='" + attach_and_pkey.get(j) +"'";
+                recSet=dbHper.get(SQL_command);
+                ArrayList<String> attach_remark=pre_work();
+                String attachment=attach_remark.get(0) + "(" + attach_remark.get(1) + ")";
+                top_three_arr.add(attachment);//top_three_arr第三項(a、b)
+            }
+        }
+        /************/
+        //1.
+        /*SQL_command="SELECT taskcard_attach_pkey FROM check_condition";
         recSet=dbHper.get(SQL_command);
         ArrayList<String> taskcard_attach_pkey_Array=pre_work();//找出taskcard_attach_pkey
 
@@ -99,11 +151,37 @@ public class EditActivity extends AppCompatActivity {
                 }
                 top_three_arr.add(mString);
             }
-        }
+        }*/
         //4.
         SQL_command="SELECT create_date,location_equipment_tk,WPS FROM check_condition";
         recSet=dbHper.get(SQL_command);
         ArrayList<String> last_three_arr=pre_work();//找出create_date,location_equipment_tk,WPS，後三項
+            //c類型地點為哩程需顯示為tk格式(ex:25.04,66.55--->TK25.04~TK66.55)
+        SQL_command="SELECT type FROM check_condition";
+        recSet=dbHper.get(SQL_command);
+        ArrayList<String> taskcard_type=pre_work();
+
+        for (int y=0;y<taskcard_type.size();y++){
+            if (taskcard_type.get(y).equals("c")){
+                String[] tk_range=last_three_arr.get(y*3+1).split(",");
+                String tk;
+                if (tk_range.length>1){
+                    //有範圍
+                    tk="TK" + tk_range[0] + "\n~\nTK" + tk_range[1];
+                }
+                else {
+                    //同範圍
+                    tk="TK" + tk_range[0];
+                }
+                last_three_arr.set(y*3+1,tk);
+            }
+            else if (taskcard_type.get(y).equals("b")){
+                String[] multiLocation=last_three_arr.get(y*3+1).split(",");
+                String[] equipment=multiLocation[0].split("_");
+                String eq=equipment[1] + " 設備";
+                last_three_arr.set(y*3+1,eq);
+            }
+        }
         //5.
         SQL_command="SELECT PMID FROM check_condition";
         recSet=dbHper.get(SQL_command);
