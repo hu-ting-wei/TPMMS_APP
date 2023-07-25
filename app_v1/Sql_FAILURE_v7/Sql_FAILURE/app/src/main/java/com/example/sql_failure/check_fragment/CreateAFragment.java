@@ -1038,6 +1038,30 @@ public class CreateAFragment extends Fragment {
                     etVoltage.setGravity(Gravity.CENTER);
                     etVoltage.setTextSize(28);
                     etVoltage.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+                    //防呆:避免使用者輸入以零為開頭的整數，除了浮點數
+                    etVoltage.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                            if (charSequence.length()>0){
+                                String input=charSequence.toString();
+                                if (input.matches("^0\\d+")){
+                                    //正規表達式 ^0\\d+ 的意思是匹配以0開頭且後面跟著一個或多個數字的字串(在Java中，正規表達式的反斜線需要使用兩個斜線來進行轉義，所以這裡用\\d表示一個數字字符)
+                                    etVoltage.setText(input.substring(1));//開頭0去掉
+                                    etVoltage.setSelection(etVoltage.getText().length()); // 將游標移至結尾
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+
+                        }
+                    });
                     etVoltage.setBackgroundResource(R.drawable.type__4th_edittexd_background);
                     etVoltage.setLayoutParams(expand_item_et_par);
                     int uniqueId_1 = View.generateViewId();
@@ -1056,6 +1080,30 @@ public class CreateAFragment extends Fragment {
                     etOhm.setGravity(Gravity.CENTER);
                     etOhm.setTextSize(28);
                     etOhm.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+                    //防呆:避免使用者輸入以零為開頭的整數，除了浮點數
+                    etOhm.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                            if (charSequence.length()>0){
+                                String input=charSequence.toString();
+                                if (input.matches("^0\\d+")){
+                                    //正規表達式 ^0\\d+ 的意思是匹配以0開頭且後面跟著一個或多個數字的字串(在Java中，正規表達式的反斜線需要使用兩個斜線來進行轉義，所以這裡用\\d表示一個數字字符)
+                                    etOhm.setText(input.substring(1));//開頭0去掉
+                                    etOhm.setSelection(etOhm.getText().length()); // 將游標移至結尾
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+
+                        }
+                    });
                     etOhm.setBackgroundResource(R.drawable.type__4th_edittexd_background);
                     etOhm.setLayoutParams(expand_item_et_par);
                     int uniqueId_2 = View.generateViewId();
